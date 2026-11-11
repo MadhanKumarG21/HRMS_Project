@@ -1,0 +1,475 @@
+/* ==========================================================================
+   modals.css
+   Shared modal + form + button system.
+   Used by RoleModal.jsx, DeleteRoleModal.jsx (and any other modal that
+   imports "../../styles/modals.css"). Built on global.css tokens, so it
+   automatically matches whatever surface/dark theme is active — no local
+   token set to keep in sync.
+   ========================================================================== */
+
+/* ==========================================================================
+   Overlay + shell
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: var(--z-modal);
+  animation: fadeIn var(--transition-fast) ease-out;
+  font-family: var(--font-family);
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  color: var(--text-primary);
+  animation: slideUp var(--transition) cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.modal-sm {
+  max-width: 420px;
+}
+
+.modal-lg {
+  max-width: 680px;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gutter);
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border-color-light);
+ 
+  background: var(--surface);
+  border-top-left-radius: var(--border-radius-lg);
+  border-top-right-radius: var(--border-radius-lg);
+}
+
+.modal-title {
+  font-size: var(--font-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.modal-close:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.modal-close .material-symbols-outlined,
+.modal-close .icon {
+  font-size: 17px;
+}
+
+.modal-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px 20px;
+  border-top: 1px solid var(--border-color-light);
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+}
+
+/* ==========================================================================
+   Delete-confirmation variant
+   ========================================================================== */
+
+.delete-modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 32px 26px 8px;
+}
+
+.delete-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--warning-light);
+  color: var(--warning);
+  margin-bottom: 6px;
+}
+
+.delete-icon .material-symbols-outlined,
+.delete-icon .icon {
+  font-size: 26px;
+}
+
+.delete-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.delete-text {
+  font-size: var(--font-small);
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 34ch;
+}
+
+.delete-text strong {
+  color: var(--text-primary);
+}
+
+.delete-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  text-align: left;
+  font-size: 12.5px;
+  color: var(--warning-dark);
+  background: var(--warning-light);
+  border-radius: var(--border-radius-sm);
+  padding: 10px 12px;
+  margin-top: 6px;
+}
+
+.delete-warning .material-symbols-outlined,
+.delete-warning .icon {
+  font-size: 16px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Alerts
+   ========================================================================== */
+
+.error-alert {
+  font-size: var(--font-body);
+  font-weight: 500;
+  color: var(--danger-dark);
+  background: var(--danger-light);
+  border-radius: var(--border-radius-sm);
+  padding: 10px 12px;
+  margin: 0 22px;
+}
+
+.delete-modal-body .error-alert {
+  margin: 8px 0 0;
+  width: 100%;
+}
+
+/* ==========================================================================
+   Buttons (work standalone or combined with .btn)
+   ========================================================================== */
+
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), transform 0.05s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--outline);
+}
+
+.btn-danger {
+  background: var(--danger-light);
+  color: var(--danger-dark);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #fecaca;
+}
+
+.btn:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Form fields
+   ========================================================================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-label.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.required {
+  color: var(--danger);
+}
+
+.form-input {
+  width: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.form-input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.form-input:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.form-hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.checkbox-group {
+  flex-direction: row;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-body);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.checkbox-text {
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   Permission picker (RoleModal)
+   ========================================================================== */
+
+.perm-count {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  background: var(--primary-container);
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+}
+
+.permissions-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 14px;
+  background: var(--bg-secondary);
+}
+
+.perm-category-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 8px;
+}
+
+.perm-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+}
+
+.perm-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-family);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.perm-option:hover {
+  border-color: var(--outline);
+}
+
+.perm-option.selected {
+  background: var(--primary-container);
+  border-color: var(--primary);
+}
+
+.perm-check {
+  display: flex;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.perm-check .material-symbols-outlined,
+.perm-check .icon {
+  font-size: 18px;
+}
+
+.perm-option.selected .perm-check {
+  color: var(--primary);
+}
+
+.perm-label {
+  flex: 1;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.perm-option.selected .perm-label {
+  color: var(--primary-dark);
+}
+
+.perm-key {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 560px) {
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .error-alert {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .perm-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal {
+    animation: none;
+  }
+}

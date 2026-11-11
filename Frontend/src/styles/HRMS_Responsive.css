@@ -1,0 +1,805 @@
+/* TechNova HRMS - Responsive Override
+   Import this file LAST after your existing CSS files.
+*/
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.dashboard-content,
+.employees-page,
+.attendance-page,
+.leave-page,
+.al-page,
+.page-content,
+.main-content {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Headers */
+.page-head,
+.page-header,
+.al-page-header {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-head-left,
+.page-head-right {
+  min-width: 0;
+}
+
+.page-title,
+.al-page-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.header-actions,
+.page-actions,
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* Dashboard */
+.mid-row,
+.bottom-row {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+
+.mid-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.bottom-row {
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+}
+
+.mid-row > *,
+.bottom-row > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.stats-grid,
+.stat-cards,
+.stats-cards {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Filters */
+.filter-bar,
+.filters,
+.attendance-filters,
+.leave-filters,
+.employee-filters,
+.search-filter-bar {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.searchbar,
+.search-box,
+.search-container {
+  min-width: 220px;
+  flex: 1 1 240px;
+  max-width: 100%;
+}
+
+.filter-bar input,
+.filter-bar select,
+.filters input,
+.filters select,
+.attendance-filters input,
+.attendance-filters select,
+.leave-filters input,
+.leave-filters select,
+.employee-filters input,
+.employee-filters select,
+.searchbar input,
+.searchbar select,
+.search-box input,
+.search-box select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Forms */
+.form-row,
+.form-grid {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.form-group {
+  width: 100%;
+  min-width: 0;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.form-group.full-width,
+.form-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+/* Tables: horizontal scroll instead of breaking the page */
+.table-container,
+.table-wrapper,
+.table-responsive,
+.al-table-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.leave-table,
+.employees-table,
+.attendance-table,
+.data-table,
+.al-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.leave-table th,
+.leave-table td,
+.employees-table th,
+.employees-table td,
+.attendance-table th,
+.attendance-table td,
+.data-table th,
+.data-table td,
+.al-table th,
+.al-table td {
+  white-space: nowrap;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  padding: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  z-index: 9999;
+}
+
+.modal {
+  width: min(720px, 100%);
+  max-width: 100%;
+  max-height: calc(100dvh - 40px);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.modal-body {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Pagination */
+.pagination {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+  .stats-grid,
+  .stat-cards,
+  .stats-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mid-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mid-row > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small tablet */
+@media (max-width: 900px) {
+  .page-head,
+  .page-header,
+  .al-page-header {
+    align-items: flex-start;
+  }
+
+  .page-head-right {
+    width: 100%;
+    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mid-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mid-row > :last-child {
+    grid-column: auto;
+  }
+
+  .form-row,
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group.full-width,
+  .form-grid .full-width {
+    grid-column: auto;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .dashboard-content,
+  .employees-page,
+  .attendance-page,
+  .leave-page,
+  .al-page,
+  .page-content {
+    padding: 16px !important;
+  }
+
+  .page-head,
+  .page-header,
+  .al-page-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .page-title,
+  .al-page-title {
+    font-size: 1.4rem;
+    line-height: 1.25;
+  }
+
+  .stats-grid,
+  .stat-cards,
+  .stats-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mid-row,
+  .bottom-row {
+    gap: 14px;
+  }
+
+  .filter-bar,
+  .filters,
+  .attendance-filters,
+  .leave-filters,
+  .employee-filters,
+  .search-filter-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .searchbar,
+  .search-box,
+  .search-container {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .header-actions,
+  .page-actions,
+  .action-buttons {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .header-actions > button,
+  .page-actions > button,
+  .action-buttons > button {
+    width: 100%;
+  }
+
+  .leave-table,
+  .employees-table,
+  .attendance-table,
+  .data-table,
+  .al-table {
+    min-width: 720px;
+  }
+
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-start;
+  }
+
+  .modal {
+    width: 100%;
+    max-height: calc(100dvh - 20px);
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 14px 16px !important;
+  }
+
+  .modal-body {
+    padding: 16px !important;
+  }
+
+  .modal-footer {
+    padding: 12px 16px !important;
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-footer button {
+    width: 100%;
+  }
+
+  .pagination button {
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .dashboard-content,
+  .employees-page,
+  .attendance-page,
+  .leave-page,
+  .al-page,
+  .page-content {
+    padding: 12px !important;
+  }
+
+  .page-title,
+  .al-page-title {
+    font-size: 1.25rem;
+  }
+
+  .page-sub,
+  .page-subtitle,
+  .al-page-sub {
+    font-size: 0.8rem;
+  }
+
+  .stat-card {
+    padding: 14px !important;
+  }
+
+  .form-row,
+  .form-grid {
+    gap: 12px;
+  }
+
+  .modal-overlay {
+    padding: 6px;
+  }
+
+  .modal {
+    max-height: calc(100dvh - 12px);
+    border-radius: 10px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .leave-table,
+  .employees-table,
+  .attendance-table,
+  .data-table,
+  .al-table {
+    min-width: 680px;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .dashboard-content,
+  .employees-page,
+  .attendance-page,
+  .leave-page,
+  .al-page,
+  .page-content {
+    padding: 10px !important;
+  }
+
+  .page-title,
+  .al-page-title {
+    font-size: 1.15rem;
+  }
+
+  .stat-card {
+    padding: 12px !important;
+  }
+
+  .modal-overlay {
+    padding: 4px;
+  }
+
+  .modal {
+    max-height: calc(100dvh - 8px);
+  }
+
+  .leave-table,
+  .employees-table,
+  .attendance-table,
+  .data-table,
+  .al-table {
+    min-width: 640px;
+  }
+}
+
+/* Touch devices */
+@media (pointer: coarse) {
+  button,
+  select,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"],
+  input[type="number"],
+  textarea {
+    min-height: 42px;
+  }
+}
+
+/* Prevent long IDs/emails/text from causing horizontal overflow */
+.page-title,
+.page-sub,
+.page-subtitle,
+.card-title,
+p,
+span,
+label,
+td,
+th {
+  overflow-wrap: anywhere;
+}
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  border-radius: 10px;
+}
+
+/* Prevent the table from shrinking into unreadable columns */
+.table-container > table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Keep cells readable */
+.table-container th,
+.table-container td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Long text can still wrap where it is useful */
+.table-container td.text-wrap,
+.table-container td.reason-cell {
+  white-space: normal;
+  min-width: 180px;
+  max-width: 300px;
+  overflow-wrap: anywhere;
+}
+
+/* Do not let buttons make a row unexpectedly tall */
+.table-container td:last-child {
+  white-space: nowrap;
+}
+
+.table-container .btn-action {
+  flex: 0 0 auto;
+}
+
+/* ---------- Known HRMS tables ---------- */
+
+.table-container .employees-table {
+  min-width: 820px;
+}
+
+.table-container .attendance-table {
+  min-width: 820px;
+}
+
+.table-container .leave-table {
+  min-width: 850px;
+}
+
+/* ---------- User Management / Audit / generic tables ----------
+   Covers common table class names if present in the project.
+*/
+
+.table-container .users-table,
+.table-container .user-table,
+.table-container .user-management-table,
+.table-container .audit-table,
+.table-container .audit-log-table,
+.table-container .roles-table,
+.table-container .modules-table,
+.table-container .security-table {
+  min-width: 760px;
+}
+
+/* ---------- Card/container protection ---------- */
+
+.employees-page,
+.attendance-page,
+.leave-page,
+.leave-management-page,
+.user-management-page,
+.audit-log-page,
+.roles-page,
+.modules-page,
+.security-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.employees-page .table-container,
+.attendance-page .table-container,
+.leave-page .table-container,
+.leave-management-page .table-container,
+.user-management-page .table-container,
+.audit-log-page .table-container,
+.roles-page .table-container,
+.modules-page .table-container,
+.security-page .table-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 768px) {
+
+  .table-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  /*
+    IMPORTANT:
+    Do NOT use display:block on <table>, <thead>, <tbody>, <tr>
+    because it destroys normal table alignment.
+  */
+
+  .table-container > table {
+    width: max-content;
+    max-width: none;
+  }
+
+  .table-container .employees-table {
+    min-width: 780px;
+  }
+
+  .table-container .attendance-table {
+    min-width: 800px;
+  }
+
+  .table-container .leave-table {
+    min-width: 820px;
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .table-container th {
+    font-size: 12px;
+  }
+
+  .table-container .btn-action {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    padding: 0;
+  }
+
+  /* Keep multiple action buttons on the same row */
+  .table-container td:last-child {
+    min-width: 95px;
+  }
+}
+
+/* ---------- Small phones ---------- */
+
+@media (max-width: 480px) {
+
+  .table-container {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    border-radius: 7px;
+  }
+
+  .table-container > table {
+    width: max-content;
+  }
+
+  .table-container .employees-table {
+    min-width: 760px;
+  }
+
+  .table-container .attendance-table {
+    min-width: 780px;
+  }
+
+  .table-container .leave-table {
+    min-width: 800px;
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+
+  .table-container th {
+    font-size: 11px;
+  }
+}
+
+/* ---------- Prevent horizontal page overflow ---------- */
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+* {
+  min-width: 0;
+}
+
+/*
+  Re-enable the natural minimum width for table internals.
+  This prevents the universal min-width rule above from
+  collapsing table columns.
+*/
+table,
+thead,
+tbody,
+tfoot,
+tr,
+th,
+td {
+  min-width: revert;
+}
+
+/* ---------- Better scrollbar ---------- */
+
+.table-container::-webkit-scrollbar {
+  height: 7px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+}
+
+/* ---------- Mobile table hint ----------
+   Adds a subtle visual cue without changing table markup.
+*/
+
+@media (max-width: 768px) {
+  .table-container {
+    background:
+      linear-gradient(to right, #ffffff 0, rgba(255,255,255,0) 18px) 0 0 / 20px 100% no-repeat,
+      linear-gradient(to left, #ffffff 0, rgba(255,255,255,0) 18px) 100% 0 / 20px 100% no-repeat;
+  }
+}

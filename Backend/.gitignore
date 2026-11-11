@@ -1,0 +1,10 @@
+node_modules/
+
+# Temporary resume uploads / generated private data
+uploads/
+backups/
+
+# Secrets
+.env
+.env.*
+!.env.example

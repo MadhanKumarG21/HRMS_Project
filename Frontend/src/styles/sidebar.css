@@ -1,0 +1,1238 @@
+/* ================================================================
+   TECHNOVA HRMS - SIDEBAR
+   Desktop + Mobile Hamburger Drawer
+   ================================================================ */
+
+
+/* ================================================================
+   ROOT VARIABLES
+   ================================================================ */
+
+:root {
+  --sidebar-width: 260px;
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #e2e8f0;
+
+  --primary: #0058be;
+  --primary-light: #2170e4;
+  --primary-dark: #004395;
+
+  --sidebar-text: #475569;
+  --sidebar-muted: #64748b;
+  --sidebar-heading: #94a3b8;
+
+  --sidebar-hover: #f1f5f9;
+  --sidebar-active-bg: #eff6ff;
+
+  --success: #16a34a;
+  --danger: #dc2626;
+
+  --topbar-height: 64px;
+
+  --sidebar-transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+
+/* ================================================================
+   SIDEBAR
+   ================================================================ */
+
+.sidebar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: var(--sidebar-width);
+  height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--sidebar-bg);
+
+  border-right: 1px solid var(--sidebar-border);
+
+  z-index: 1000;
+
+  overflow: hidden;
+
+  box-sizing: border-box;
+}
+
+
+/* ================================================================
+   BRAND
+   ================================================================ */
+
+.sidebar-brand {
+  min-height: 80px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 18px 18px;
+
+  border-bottom: 1px solid var(--sidebar-border);
+
+  flex-shrink: 0;
+
+  position: relative;
+}
+
+
+.sidebar-brand-icon {
+  width: 42px;
+  height: 42px;
+
+  min-width: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: var(--primary);
+
+  color: #ffffff;
+
+  box-shadow: 0 4px 10px rgba(0, 88, 190, 0.18);
+}
+
+
+.sidebar-brand-icon .material-symbols-outlined {
+  font-size: 23px;
+}
+
+
+.sidebar-brand-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+
+.sidebar-brand-content strong {
+  color: #0f172a;
+
+  font-size: 17px;
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  white-space: nowrap;
+}
+
+
+.sidebar-brand-content span {
+  color: var(--sidebar-muted);
+
+  font-size: 10px;
+  font-weight: 500;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
+}
+
+
+/* ================================================================
+   MOBILE CLOSE BUTTON
+   Hidden on desktop
+   ================================================================ */
+
+.mobile-sidebar-close {
+  display: none;
+
+  width: 36px;
+  height: 36px;
+
+  margin-left: auto;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: var(--sidebar-muted);
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+
+.mobile-sidebar-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+
+.mobile-sidebar-close .material-symbols-outlined {
+  font-size: 22px;
+}
+
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+
+.sidebar-nav {
+  flex: 1;
+
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 18px 12px;
+}
+
+
+/* scrollbar */
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+
+/* ================================================================
+   NAV LABEL
+   ================================================================ */
+
+.sidebar-nav-label {
+  padding: 0 12px 9px;
+}
+
+
+.sidebar-nav-label span {
+  color: var(--sidebar-heading);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* ================================================================
+   NAV LIST
+   ================================================================ */
+
+.sidebar-nav-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+
+/* ================================================================
+   NAV ITEM
+   ================================================================ */
+
+.nav-item {
+  position: relative;
+
+  width: 100%;
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 10px 12px;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
+
+  color: var(--sidebar-text);
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+
+  cursor: pointer;
+}
+
+
+.nav-item:hover {
+  background: var(--sidebar-hover);
+
+  color: var(--primary);
+}
+
+
+.nav-item:active {
+  transform: scale(0.985);
+}
+
+
+/* ================================================================
+   ACTIVE NAV ITEM
+   ================================================================ */
+
+.nav-item.active {
+  background: var(--sidebar-active-bg);
+
+  color: var(--primary);
+
+  font-weight: 600;
+}
+
+
+.nav-item.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+
+  width: 3px;
+
+  background: var(--primary);
+
+  border-radius: 0 4px 4px 0;
+}
+
+
+/* ================================================================
+   NAV ICON
+   ================================================================ */
+
+.nav-item-icon {
+  width: 22px;
+  height: 22px;
+
+  min-width: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: currentColor;
+}
+
+
+.nav-item-icon .material-symbols-outlined {
+  font-size: 21px;
+
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+
+/* Active icon */
+
+.nav-item.active .nav-item-icon .material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 500,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+
+/* ================================================================
+   NAV LABEL
+   ================================================================ */
+
+.nav-item-label {
+  flex: 1;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+/* ================================================================
+   SIDEBAR FOOTER
+   ================================================================ */
+
+.sidebar-footer {
+  flex-shrink: 0;
+
+  padding: 14px 12px 16px;
+
+  border-top: 1px solid var(--sidebar-border);
+
+  background: #ffffff;
+}
+
+
+/* ================================================================
+   SYSTEM STATUS
+   ================================================================ */
+
+.sidebar-status {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 10px 11px;
+
+  margin-bottom: 12px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 9px;
+}
+
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+
+  min-width: 8px;
+
+  border-radius: 50%;
+
+  background: var(--success);
+
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+
+.status-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+
+.status-title {
+  color: #64748b;
+
+  font-size: 10px;
+  font-weight: 500;
+}
+
+
+.status-value {
+  color: #15803d;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* ================================================================
+   SIDEBAR USER
+   ================================================================ */
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 9px 4px;
+
+  margin-bottom: 8px;
+}
+
+
+.sidebar-user-avatar {
+  width: 38px;
+  height: 38px;
+
+  min-width: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dbeafe;
+
+  color: var(--primary);
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+.sidebar-user-details {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+
+.sidebar-user-details strong {
+  color: #1e293b;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.sidebar-user-details span {
+  color: #64748b;
+
+  font-size: 11px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+/* ================================================================
+   LOGOUT
+   ================================================================ */
+
+.sidebar-logout {
+  width: 100%;
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 9px 11px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #475569;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+
+.sidebar-logout:hover {
+  background: #fef2f2;
+
+  border-color: #fecaca;
+
+  color: var(--danger);
+}
+
+
+.sidebar-logout-icon {
+  width: 20px;
+  height: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.sidebar-logout .material-symbols-outlined {
+  font-size: 20px;
+}
+
+
+/* ================================================================
+   MOBILE HEADER
+   ================================================================ */
+
+.mobile-header {
+  display: none;
+
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: var(--topbar-height);
+
+  z-index: 900;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  box-sizing: border-box;
+}
+
+
+/* ================================================================
+   MOBILE HEADER LEFT
+   ================================================================ */
+
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+}
+
+
+/* ================================================================
+   MOBILE MENU BUTTON
+   ================================================================ */
+
+.mobile-menu-btn {
+  width: 42px;
+  height: 42px;
+
+  min-width: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #334155;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+
+.mobile-menu-btn:hover {
+  background: #f8fafc;
+
+  color: var(--primary);
+
+  border-color: #bfdbfe;
+}
+
+
+.mobile-menu-btn:active {
+  transform: scale(0.96);
+}
+
+
+.mobile-menu-btn .material-symbols-outlined {
+  font-size: 24px;
+}
+
+
+/* ================================================================
+   MOBILE BRAND
+   ================================================================ */
+
+.mobile-header-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  min-width: 0;
+}
+
+
+.mobile-brand-icon {
+  width: 34px;
+  height: 34px;
+
+  min-width: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: var(--primary);
+
+  color: #ffffff;
+}
+
+
+.mobile-brand-icon .material-symbols-outlined {
+  font-size: 19px;
+}
+
+
+.mobile-brand-text {
+  display: flex;
+  flex-direction: column;
+
+  line-height: 1.1;
+}
+
+
+.mobile-brand-text strong {
+  color: #0f172a;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+.mobile-brand-text span {
+  color: #64748b;
+
+  font-size: 9px;
+  font-weight: 500;
+}
+
+
+/* ================================================================
+   MOBILE USER
+   ================================================================ */
+
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+}
+
+
+.mobile-user-avatar {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #dbeafe;
+
+  color: var(--primary);
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* ================================================================
+   MOBILE BACKDROP
+   ================================================================ */
+
+.mobile-sidebar-backdrop {
+  display: none;
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1100;
+
+  background: rgba(15, 23, 42, 0.5);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition:
+    opacity 0.28s ease,
+    visibility 0.28s ease;
+}
+
+
+.mobile-sidebar-backdrop.show {
+  opacity: 1;
+
+  visibility: visible;
+}
+
+
+/* ================================================================
+   TABLET / MOBILE
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+  /* --------------------------------------------------------------
+     Mobile header
+     -------------------------------------------------------------- */
+
+  .mobile-header {
+    display: flex;
+  }
+
+
+  /* --------------------------------------------------------------
+     Sidebar becomes drawer
+     -------------------------------------------------------------- */
+
+  .sidebar {
+    width: min(82vw, 300px);
+
+    max-width: 300px;
+
+    z-index: 1200;
+
+    transform: translateX(-105%);
+
+    box-shadow: none;
+
+    transition: var(--sidebar-transition);
+  }
+
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+
+    box-shadow:
+      10px 0 30px rgba(15, 23, 42, 0.15);
+  }
+
+
+  /* --------------------------------------------------------------
+     Backdrop
+     -------------------------------------------------------------- */
+
+  .mobile-sidebar-backdrop {
+    display: block;
+  }
+
+
+  /* --------------------------------------------------------------
+     Close button
+     -------------------------------------------------------------- */
+
+  .mobile-sidebar-close {
+    display: flex;
+  }
+
+
+  /* --------------------------------------------------------------
+     Brand
+     -------------------------------------------------------------- */
+
+  .sidebar-brand {
+    min-height: 72px;
+
+    padding: 14px 15px;
+  }
+
+
+  /* --------------------------------------------------------------
+     Navigation
+     -------------------------------------------------------------- */
+
+  .sidebar-nav {
+    padding: 16px 10px;
+  }
+
+
+  .nav-item {
+    min-height: 46px;
+
+    padding: 11px 12px;
+
+    font-size: 14px;
+  }
+
+
+  .nav-item-icon {
+    width: 23px;
+    min-width: 23px;
+  }
+
+
+  /* --------------------------------------------------------------
+     Footer
+     -------------------------------------------------------------- */
+
+  .sidebar-footer {
+    padding: 12px 10px 14px;
+  }
+
+
+  /* --------------------------------------------------------------
+     Main content
+     IMPORTANT:
+     Remove sidebar desktop margin on mobile.
+     -------------------------------------------------------------- */
+
+  .main-content,
+  .content-area,
+  .page-content {
+    margin-left: 0 !important;
+
+    width: 100%;
+
+    max-width: 100%;
+
+    box-sizing: border-box;
+  }
+}
+
+
+/* ================================================================
+   SMALL MOBILE
+   ================================================================ */
+
+@media (max-width: 480px) {
+
+  .mobile-header {
+    height: 58px;
+
+    padding: 0 12px;
+  }
+
+
+  .mobile-menu-btn {
+    width: 40px;
+    height: 40px;
+
+    min-width: 40px;
+  }
+
+
+  .mobile-header-left {
+    gap: 8px;
+  }
+
+
+  .mobile-brand-icon {
+    width: 31px;
+    height: 31px;
+
+    min-width: 31px;
+  }
+
+
+  .mobile-brand-icon .material-symbols-outlined {
+    font-size: 18px;
+  }
+
+
+  .mobile-brand-text strong {
+    font-size: 13px;
+  }
+
+
+  .mobile-brand-text span {
+    font-size: 8px;
+  }
+
+
+  .mobile-user-avatar {
+    width: 32px;
+    height: 32px;
+
+    font-size: 12px;
+  }
+
+
+  .sidebar {
+    width: min(86vw, 290px);
+  }
+
+
+  .sidebar-brand {
+    min-height: 68px;
+  }
+
+
+  .sidebar-brand-icon {
+    width: 38px;
+    height: 38px;
+
+    min-width: 38px;
+  }
+
+
+  .sidebar-brand-content strong {
+    font-size: 15px;
+  }
+
+
+  .sidebar-brand-content span {
+    font-size: 9px;
+  }
+
+
+  .nav-item {
+    min-height: 44px;
+
+    padding: 9px 11px;
+
+    font-size: 13px;
+  }
+
+
+  .sidebar-status {
+    padding: 9px;
+  }
+
+
+  .sidebar-user {
+    padding: 8px 3px;
+  }
+}
+
+
+/* ================================================================
+   VERY SMALL MOBILE
+   ================================================================ */
+
+@media (max-width: 360px) {
+
+  .mobile-header {
+    padding: 0 10px;
+  }
+
+
+  .mobile-brand-text {
+    display: none;
+  }
+
+
+  .mobile-user-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+
+  .sidebar {
+    width: 88vw;
+  }
+
+
+  .sidebar-nav {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+
+  .nav-item {
+    min-height: 43px;
+
+    gap: 9px;
+
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+
+  .sidebar-footer {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+
+/* ================================================================
+   DARK MODE
+   ================================================================ */
+
+[data-theme="dark"] {
+
+  --sidebar-bg: #0f172a;
+  --sidebar-border: #1e293b;
+
+  --sidebar-text: #cbd5e1;
+  --sidebar-muted: #94a3b8;
+
+  --sidebar-heading: #64748b;
+
+  --sidebar-hover: #1e293b;
+  --sidebar-active-bg: rgba(59, 130, 246, 0.14);
+}
+
+
+[data-theme="dark"] .sidebar {
+  background: var(--sidebar-bg);
+
+  border-color: var(--sidebar-border);
+}
+
+
+[data-theme="dark"] .sidebar-brand {
+  border-color: var(--sidebar-border);
+}
+
+
+[data-theme="dark"] .sidebar-brand-content strong {
+  color: #f8fafc;
+}
+
+
+[data-theme="dark"] .sidebar-nav-label span {
+  color: #64748b;
+}
+
+
+[data-theme="dark"] .nav-item {
+  color: #cbd5e1;
+}
+
+
+[data-theme="dark"] .nav-item:hover {
+  background: #1e293b;
+
+  color: #60a5fa;
+}
+
+
+[data-theme="dark"] .nav-item.active {
+  background: rgba(59, 130, 246, 0.14);
+
+  color: #60a5fa;
+}
+
+
+[data-theme="dark"] .sidebar-footer {
+  background: #0f172a;
+
+  border-color: #1e293b;
+}
+
+
+[data-theme="dark"] .sidebar-status {
+  background: #111c2e;
+
+  border-color: #1e293b;
+}
+
+
+[data-theme="dark"] .status-title {
+  color: #94a3b8;
+}
+
+
+[data-theme="dark"] .sidebar-user-details strong {
+  color: #f1f5f9;
+}
+
+
+[data-theme="dark"] .sidebar-user-details span {
+  color: #94a3b8;
+}
+
+
+[data-theme="dark"] .sidebar-logout {
+  background: #0f172a;
+
+  border-color: #334155;
+
+  color: #cbd5e1;
+}
+
+
+[data-theme="dark"] .sidebar-logout:hover {
+  background: rgba(220, 38, 38, 0.1);
+
+  border-color: rgba(220, 38, 38, 0.35);
+
+  color: #f87171;
+}
+
+
+[data-theme="dark"] .mobile-header {
+  background: #0f172a;
+
+  border-color: #1e293b;
+}
+
+
+[data-theme="dark"] .mobile-menu-btn {
+  background: #0f172a;
+
+  border-color: #334155;
+
+  color: #cbd5e1;
+}
+
+
+[data-theme="dark"] .mobile-brand-text strong {
+  color: #f8fafc;
+}
+
+
+[data-theme="dark"] .mobile-brand-text span {
+  color: #94a3b8;
+}
+
+
+[data-theme="dark"] .mobile-sidebar-close {
+  color: #94a3b8;
+}
+
+
+[data-theme="dark"] .mobile-sidebar-close:hover {
+  background: #1e293b;
+
+  color: #f8fafc;
+}

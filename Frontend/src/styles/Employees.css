@@ -1,0 +1,650 @@
+/* ==========================================================================
+   Employees.css
+   Styles for src/pages/Employees.jsx
+
+   Built on global.css tokens, scoped under .employees-page. Follows the
+   same conventions as Attendance.css / LeaveManagement.css.
+   ========================================================================== */
+
+.employees-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--section-margin) var(--content-padding) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.employees-page .page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gutter);
+  flex-wrap: wrap;
+}
+
+.employees-page .page-header h1 {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.employees-page .page-subtitle {
+  font-size: var(--font-body);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.employees-page .btn-primary,
+.employees-page .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), transform 0.05s ease;
+}
+
+.employees-page .btn-primary .material-symbols-outlined,
+.employees-page .btn-primary .icon {
+  font-size: 17px;
+}
+
+.employees-page .btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.employees-page .btn-primary:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.employees-page .btn-primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.employees-page .btn-secondary {
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.employees-page .btn-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--outline);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Error message — reuses global.css's .alert.error visual language
+   ========================================================================== */
+
+.employees-page .error-message {
+  padding: 12px 16px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-small);
+  font-weight: 500;
+  background: var(--danger-light);
+  color: var(--danger-dark);
+  animation: slideDown var(--transition) ease-out;
+}
+
+/* ==========================================================================
+   Stats grid
+   (global.css's .stats-grid mobile override still applies at 768px since
+   this page uses the exact ".stats-grid" class name)
+   ========================================================================== */
+
+.employees-page .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--gutter);
+}
+
+.employees-page .stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+  overflow: hidden;
+}
+
+.employees-page .stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.employees-page .stat-card:nth-child(1)::before {
+  background: var(--primary);
+}
+
+.employees-page .stat-card:nth-child(2)::before {
+  background: var(--success);
+}
+
+.employees-page .stat-card:nth-child(3)::before {
+  background: var(--warning);
+}
+
+.employees-page .stat-card:nth-child(4)::before {
+  background: var(--danger);
+}
+.employees-page .stat-card:nth-child(5)::before {
+  background: var(--danger);
+}
+
+.employees-page .stat-card span {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.employees-page .stat-card strong {
+  font-size: var(--font-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.employees-page .stat-card:nth-child(1) strong {
+  color: var(--primary);
+}
+
+.employees-page .stat-card:nth-child(2) strong {
+  color: var(--success);
+}
+
+.employees-page .stat-card:nth-child(3) strong {
+  color: var(--warning);
+}
+
+.employees-page .stat-card:nth-child(4) strong {
+  color: var(--danger);
+}
+
+.employees-page .stat-card:nth-child(5) strong {
+  color: var(--danger);
+}
+
+/* ==========================================================================
+   Filters bar
+   ========================================================================== */
+
+.employees-page .filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.employees-page .filters-bar input[type="text"] {
+  flex: 1 1 220px;
+  min-width: 200px;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.employees-page .filters-bar input[type="text"]:focus {
+  border-color: var(--primary);
+  background: var(--surface);
+  outline: none;
+}
+
+.employees-page .filters-bar input[type="text"]::placeholder {
+  color: var(--text-muted);
+}
+
+.employees-page .filters-bar select {
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.employees-page .filters-bar select:focus {
+  border-color: var(--primary);
+  background: var(--surface);
+  outline: none;
+}
+
+.employees-page .filters-bar .btn-secondary {
+  margin-left: auto;
+  padding: 9px 16px;
+}
+
+/* ==========================================================================
+   Table — .table-container is defined in global.css already
+   ========================================================================== */
+
+.employees-page .table-container {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.employees-page .employees-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-body);
+}
+
+.employees-page .employees-table thead th {
+  text-align: left;
+  font-size: var(--font-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: var(--table-cell-padding);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.employees-page .employees-table tbody td {
+  padding: var(--table-cell-padding);
+  border-bottom: 1px solid var(--border-color-light);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.employees-page .employees-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.employees-page .employees-table tbody tr:hover td {
+  background: var(--bg-hover);
+}
+
+.employees-page .employees-table td strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.employees-page .employees-table td.text-center {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 18px;
+}
+
+/* Status badges */
+
+.employees-page .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: var(--border-radius-full);
+}
+
+.employees-page .status-badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.employees-page .status-badge.status-active {
+  background: var(--success-light);
+  color: var(--success-dark);
+}
+
+.employees-page .status-badge.status-active::before {
+  background: var(--success);
+}
+
+.employees-page .status-badge.status-inactive {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+.employees-page .status-badge.status-inactive::before {
+  background: var(--text-muted);
+}
+
+.employees-page .status-badge.status-leave {
+  background: var(--warning-light);
+  color: var(--warning-dark);
+}
+
+.employees-page .status-badge.status-leave::before {
+  background: var(--warning);
+}
+
+.employees-page .status-badge.status-terminated {
+  background: var(--danger-light);
+  color: var(--danger-dark);
+}
+
+.employees-page .status-badge.status-terminated::before {
+  background: var(--danger);
+}
+
+/* Row actions */
+
+.employees-page .btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  color: var(--text-muted);
+}
+
+.employees-page .btn-action + .btn-action {
+  margin-left: 4px;
+}
+
+.employees-page .btn-action .material-symbols-outlined,
+.employees-page .btn-action .icon {
+  font-size: 16px;
+}
+
+.employees-page .btn-action.edit:hover {
+  background: var(--primary-container);
+  color: var(--primary-dark);
+}
+
+.employees-page .btn-action.danger:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.employees-page .pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-color-light);
+}
+
+.employees-page .pagination button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  font-family: var(--font-family);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.employees-page .pagination button .material-symbols-outlined,
+.employees-page .pagination button .icon {
+  font-size: 16px;
+}
+
+.employees-page .pagination button:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--outline);
+  color: var(--text-primary);
+}
+
+.employees-page .pagination button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+
+.employees-page .pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Modal
+   ========================================================================== */
+
+.employees-page .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: var(--z-modal);
+  animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.employees-page .modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  animation: slideUp var(--transition) cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.employees-page .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border-color-light);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  border-top-left-radius: var(--border-radius-lg);
+  border-top-right-radius: var(--border-radius-lg);
+}
+
+.employees-page .modal-header h2 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.employees-page .modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.employees-page .modal-close:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.employees-page .modal-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
+}
+
+.employees-page .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.employees-page .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.employees-page .form-group label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.employees-page .required {
+  color: var(--danger);
+}
+
+.employees-page .form-group input,
+.employees-page .form-group select,
+.employees-page .form-group textarea {
+  width: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.employees-page .form-group input:focus,
+.employees-page .form-group select:focus,
+.employees-page .form-group textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.employees-page .form-group input:disabled,
+.employees-page .form-group select:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.employees-page .form-group textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.employees-page .modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px 20px;
+  border-top: 1px solid var(--border-color-light);
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .employees-page .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .employees-page {
+    padding: 20px 14px 48px;
+  }
+
+  .employees-page .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .employees-page .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .employees-page .filters-bar .btn-secondary {
+    margin-left: 0;
+  }
+
+  .employees-page .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .employees-page .employees-table thead th,
+  .employees-page .employees-table tbody td {
+    padding: 10px 12px;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .employees-page .error-message,
+  .employees-page .modal-overlay,
+  .employees-page .modal {
+    animation: none;
+  }
+}

@@ -1,0 +1,97 @@
+.shared-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color-light, #e2e8f0);
+}
+
+.shared-pagination-summary {
+  color: var(--text-muted, #64748b);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.shared-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.shared-pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 6px;
+  background: var(--surface, #ffffff);
+  color: var(--text-secondary, #475569);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.shared-pagination-button:hover:not(:disabled) {
+  border-color: var(--primary, #0058be);
+  color: var(--primary, #0058be);
+}
+
+.shared-pagination-button.active {
+  border-color: var(--primary, #0058be);
+  background: var(--primary, #0058be);
+  color: #ffffff;
+}
+
+.shared-pagination-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.shared-pagination-button:focus-visible {
+  outline: 2px solid var(--primary-light, #2170e4);
+  outline-offset: 2px;
+}
+
+.shared-pagination-button .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.shared-pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 34px;
+  color: var(--text-muted, #64748b);
+  font-size: 12px;
+}
+
+@media (max-width: 560px) {
+  .shared-pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .shared-pagination-summary {
+    text-align: center;
+  }
+
+  .shared-pagination-controls {
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .shared-pagination-button {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+  }
+}

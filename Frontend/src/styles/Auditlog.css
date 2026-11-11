@@ -1,0 +1,633 @@
+/* ==========================================================================
+   Auditlog.css
+   Styles for src/pages/AuditLog.jsx and src/Components/audit/*
+
+   Built on global.css tokens, scoped under .al-page. Row/badge colors for
+   severity, module, and avatars are computed inline in JS (auditHelpers.js)
+   from a fixed palette — this sheet only supplies structure/shape, plus a
+   couple of border-accent colors keyed off the same severity classes.
+   ========================================================================== */
+
+.al-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--section-margin) var(--content-padding) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.al-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gutter);
+  flex-wrap: wrap;
+}
+
+.al-page-title {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.al-page-sub {
+  font-size: var(--font-body);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.al-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  background: var(--primary);
+  color: var(--on-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.al-refresh-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.al-refresh-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Error banner — reuses global.css's .alert.error visual language
+   ========================================================================== */
+
+.al-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-small);
+  font-weight: 500;
+  background: var(--danger-light);
+  color: var(--danger-dark);
+  animation: slideDown var(--transition) ease-out;
+}
+
+.al-error-banner .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.al-error-dismiss {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+
+.al-error-dismiss:hover {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Stats grid
+   (global.css's .stats-grid mobile override doesn't apply here since this
+   page uses its own ".al-stats-grid" class name — its own breakpoint below
+   handles the same collapse.)
+   ========================================================================== */
+
+.al-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gutter);
+}
+
+.al-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+}
+
+.al-stat-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 10px;
+}
+
+.al-stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.al-stat-value {
+  font-size: var(--font-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.al-stat-value.al-val-primary {
+  color: var(--primary);
+}
+
+.al-stat-value.al-val-danger {
+  color: var(--danger);
+}
+
+.al-stat-value.al-val-teal {
+  color: var(--success);
+}
+
+.al-stat-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Filter bar
+   ========================================================================== */
+
+.al-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.al-search-wrap {
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+.al-search-input {
+  width: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.al-search-input:focus {
+  border-color: var(--primary);
+  background: var(--surface);
+  outline: none;
+}
+
+.al-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.al-filter-select {
+  font-family: var(--font-family);
+  font-size: var(--font-body);
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.al-filter-select:focus {
+  border-color: var(--primary);
+  background: var(--surface);
+  outline: none;
+}
+
+.al-result-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  margin-left: auto;
+  padding: 0 4px;
+}
+
+.al-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-family);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--danger);
+  background: var(--danger-light);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.al-clear-btn .material-symbols-outlined,
+.al-clear-btn .icon {
+  font-size: 15px;
+}
+
+.al-clear-btn:hover {
+  background: #fecaca;
+}
+
+.al-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-family);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--on-primary);
+  background: var(--primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.al-export-btn .material-symbols-outlined,
+.al-export-btn .icon {
+  font-size: 16px;
+}
+
+.al-export-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.al-export-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Table card
+   ========================================================================== */
+
+.al-table-card {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.al-table-wrap {
+  overflow-x: auto;
+}
+
+.al-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-body);
+}
+
+.al-th {
+  text-align: left;
+  font-size: var(--font-label);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: var(--table-cell-padding);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.al-td {
+  padding: var(--table-cell-padding);
+  border-bottom: 1px solid var(--border-color-light);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.al-row {
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  border-left: 3px solid transparent;
+}
+
+.al-row:hover .al-td {
+  background: var(--bg-hover);
+}
+
+.al-row:last-child .al-td {
+  border-bottom: none;
+}
+
+.al-row-critical {
+  border-left-color: var(--danger);
+}
+
+.al-row-warning {
+  border-left-color: var(--warning);
+}
+
+.al-row-highlighted .al-td {
+  background: var(--primary-container);
+}
+
+.al-row-highlighted:hover .al-td {
+  background: var(--primary-container);
+}
+
+/* User cell */
+
+.al-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.al-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.al-user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Action cell */
+
+.al-action-cell {
+  max-width: 320px;
+}
+
+.al-action-text {
+  font-size: var(--font-body);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+  text-transform: capitalize;
+}
+
+.al-action-detail {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badges (background colors set inline via style={}) */
+
+.al-module-badge,
+.al-status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--border-radius-full);
+  white-space: nowrap;
+}
+
+.al-severity-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: var(--border-radius-sm);
+}
+
+.al-sev-info {
+  background: var(--info-light);
+  color: var(--info-dark);
+}
+
+.al-sev-warning {
+  background: var(--warning-light);
+  color: var(--warning-dark);
+}
+
+.al-sev-critical {
+  background: var(--danger-light);
+  color: var(--danger-dark);
+}
+
+.al-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.al-ip {
+  color: var(--text-muted);
+}
+
+/* Empty + skeleton states */
+
+.al-empty {
+  text-align: center;
+  padding: 56px 20px;
+  color: var(--text-muted);
+  font-size: var(--font-body);
+}
+
+.al-skeleton {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.al-skeleton-row {
+  cursor: default;
+}
+
+.al-skeleton-row:hover .al-td {
+  background: transparent;
+}
+
+/* ==========================================================================
+   Pagination footer
+   ========================================================================== */
+
+.al-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color-light);
+}
+
+.al-footer-info {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.al-pagination {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.al-pag-arrow,
+.al-pag-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  font-family: var(--font-family);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.al-pag-arrow .material-symbols-outlined,
+.al-pag-arrow .icon {
+  font-size: 16px;
+}
+
+.al-pag-arrow:hover:not(:disabled),
+.al-pag-num:hover {
+  background: var(--bg-secondary);
+  border-color: var(--outline);
+  color: var(--text-primary);
+}
+
+.al-pag-arrow:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.al-pag-num.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+
+.al-pag-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 30px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .al-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .al-page {
+    padding: 20px 14px 48px;
+  }
+
+  .al-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .al-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .al-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .al-result-count {
+    margin-left: 0;
+  }
+
+  .al-th,
+  .al-td {
+    padding: 10px 12px;
+  }
+
+  .al-action-cell {
+    max-width: 200px;
+  }
+
+  .al-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .al-pagination {
+    justify-content: center;
+  }
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .al-error-banner,
+  .al-skeleton,
+  .al-row {
+    animation: none;
+    transition: none;
+  }
+}
