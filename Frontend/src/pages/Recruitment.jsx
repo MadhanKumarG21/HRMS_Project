@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api.js";
 import "../styles/Recruitment.css";
-import Icon from "../Components/Icon.jsx ";
+import Icon from "@/Components/Icon.jsx";
 
 const candidateStatuses = [
   "New",
