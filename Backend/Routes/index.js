@@ -66,7 +66,12 @@ const router = express.Router();
 // ─── Auth Routes ────────────────────────────────────────────────────
 // Public: no token required
 router.get("/auth/clear-auth", (req, res) => {
-  res.clearCookie("token", { httpOnly: true, path: "/", sameSite: config.NODE_ENV === "production" ? "strict" : "lax", secure: config.NODE_ENV === "production" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    path: "/",
+    sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+    secure: config.NODE_ENV === "production",
+  });
   res.json({ message: "Auth cookie cleared (router)" });
 });
 

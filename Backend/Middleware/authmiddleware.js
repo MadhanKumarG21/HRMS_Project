@@ -22,8 +22,9 @@ export const verifyToken = async (req, res, next) => {
     if (!user || user.status === "Inactive") {
       res.clearCookie("token", {
         httpOnly: true,
+        secure: config.NODE_ENV === "production",
         path: "/",
-        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+        sameSite: config.NODE_ENV === "production" ? "none" : "lax",
       });
       return res
         .status(403)
@@ -40,8 +41,9 @@ export const verifyToken = async (req, res, next) => {
   } catch (error) {
     res.clearCookie("token", {
       httpOnly: true,
+      secure: config.NODE_ENV === "production",
       path: "/",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: config.NODE_ENV === "production" ? "none" : "lax",
     });
 
     if (error.name === "JsonWebTokenError") {
