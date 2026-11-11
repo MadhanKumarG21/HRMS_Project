@@ -17,6 +17,61 @@ import {
 import { runAttendanceAutoCheckoutSweep } from "../../Services/attendanceAutoCheckout.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+const getRoleName = (req) => {
+  const role = req.user?.role;
+  return (typeof role === "object" ? role?.name : role || "").toLowerCase();
+};
+const hasFullAccess = (req) =>
+  getRoleName(req) === "admin" ||
+  (req.user?.permissions || []).includes("all:access");
+
+const getScopedUserIds = async (req) => {
+  if (hasFullAccess(req)) return null;
+  const role = getRoleName(req);
+  if (role === "employee") return [req.user._id];
+  if (role === "manager") {
+    if (!req.user.department) return [req.user._id];
+    const users = await User.find({
+      department: req.user.department,
+      role: { $nin: ["Admin", "HR"] },
+    }).select("_id").lean();
+    return users.map((user) => user._id);
+  }
+  return null;
+};
+
+const canViewUserAttendance = async (req, userId, permission = "attendance.view") => {
+  if (hasFullAccess(req) || String(userId) === String(req.user._id)) return true;
+  if (getRoleName(req) === "employee") return false;
+  if (getRoleName(req) === "manager") {
+    const user = await User.findById(userId).select("department role").lean();
+    return Boolean(
+      user &&
+      user.department === req.user.department &&
+      !["admin", "hr"].includes(String(user.role || "").toLowerCase()),
+    );
+  }
+  return (req.user?.permissions || []).includes(permission);
+};
+
+export const getAttendanceUsers = async (req, res) => {
+  try {
+    const scopedUserIds = await getScopedUserIds(req);
+    const filter = {
+      status: { $in: ["Active", "On Leave"] },
+      role: { $ne: "Admin" },
+      ...(scopedUserIds ? { _id: { $in: scopedUserIds } } : {}),
+    };
+    const users = await User.find(filter)
+      .select("name employeeId department designation role status")
+      .sort({ name: 1 })
+      .lean();
+    return res.status(200).json({ data: users });
+  } catch (error) {
+    console.error("[Attendance] Get eligible users error:", error);
+    return res.status(500).json({ message: "Failed to fetch attendance users" });
+  }
+};
 
 // ─── Get All Attendance ────────────────────────────────────────────────────
 export const getAllAttendance = async (req, res) => {
@@ -45,6 +100,13 @@ export const getAllAttendance = async (req, res) => {
       }
       filter.userId = userId;
     }
+    const scopedUserIds = await getScopedUserIds(req);
+    if (scopedUserIds) {
+      if (userId && !scopedUserIds.some((id) => String(id) === String(userId))) {
+        return res.status(403).json({ message: "Access denied to this attendance record" });
+      }
+      filter.userId = { $in: scopedUserIds };
+    }
     if (status === "Present") {
       filter.status = { $in: ["Present", "Late"] };
     } else if (status === "Late") {
@@ -69,6 +131,7 @@ export const getAllAttendance = async (req, res) => {
       const users = await User.find({
         status: { $in: ["Active", "On Leave"] },
         role: { $ne: "Admin" },
+        ...(scopedUserIds ? { _id: { $in: scopedUserIds } } : {}),
       }).select("_id name email department role status").lean();
 
       const existingUserIds = new Set(
@@ -142,6 +205,9 @@ export const getAttendanceById = async (req, res) => {
     if (!attendance) {
       return res.status(404).json({ message: "Attendance not found" });
     }
+    if (!(await canViewUserAttendance(req, attendance.userId?._id || attendance.userId))) {
+      return res.status(403).json({ message: "Access denied to this attendance record" });
+    }
 
     res.status(200).json(attendance);
   } catch (error) {
@@ -161,15 +227,7 @@ export const getAttendanceByUserId = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID format" });
     }
 
-    const isSelf = req.user?._id?.toString() === userId.toString();
-    const userRole =
-      typeof req.user?.role === "object" ? req.user.role?.name : req.user?.role;
-    const isAdmin = userRole?.toLowerCase() === "admin";
-    const hasViewPerm = (req.user?.permissions || []).includes(
-      "attendance.view",
-    );
-
-    if (!isSelf && !isAdmin && !hasViewPerm) {
+    if (!(await canViewUserAttendance(req, userId, "attendance.mark"))) {
       return res
         .status(403)
         .json({
@@ -223,8 +281,10 @@ export const getAttendanceByDate = async (req, res) => {
     const { today: startDate, tomorrow: endDate } =
       await getAttendanceTimeContext(date);
 
+    const scopedUserIds = await getScopedUserIds(req);
     const attendance = await Attendance.find({
       date: { $gte: startDate, $lt: endDate },
+      ...(scopedUserIds ? { userId: { $in: scopedUserIds } } : {}),
     }).populate("userId", "name email department");
 
     res.status(200).json(attendance);
@@ -623,6 +683,9 @@ export const createAttendance = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (!(await canViewUserAttendance(req, userId))) {
+      return res.status(403).json({ message: "Access denied to this employee's attendance" });
+    }
 
     const { today: recordDate, tomorrow: recordDateEnd, timeZone } =
       await getAttendanceTimeContext(date);
@@ -730,6 +793,9 @@ export const updateAttendance = async (req, res) => {
     const existing = await Attendance.findById(id);
     if (!existing) {
       return res.status(404).json({ message: "Attendance not found" });
+    }
+    if (!(await canViewUserAttendance(req, existing.userId, "attendance.update"))) {
+      return res.status(403).json({ message: "Access denied to this attendance record" });
     }
 
     const {
@@ -863,12 +929,7 @@ export const deleteAttendance = async (req, res) => {
       });
     }
 
-    const userRole =
-      typeof req.user.role === "object" ? req.user.role?.name : req.user.role;
-    const isAdmin = userRole?.toLowerCase() === "admin";
-    const isOwner = attendance.userId.toString() === req.user._id.toString();
-
-    if (!isAdmin && !isOwner) {
+    if (!(await canViewUserAttendance(req, attendance.userId, "attendance.delete"))) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to delete this record",
@@ -949,11 +1010,13 @@ export const getAttendanceStats = async (req, res) => {
     const { today: start, tomorrow: end } =
       await getAttendanceTimeContext(rawDate || targetDate);
 
+    const scopedUserIds = await getScopedUserIds(req);
     const stats = await Attendance.aggregate([
       {
         $match: {
           date: { $gte: start, $lt: end },
           deletedAt: null,
+          ...(scopedUserIds ? { userId: { $in: scopedUserIds } } : {}),
         },
       },
       {
@@ -1000,6 +1063,7 @@ export const getAttendanceStats = async (req, res) => {
     const activeUsersCount = await User.countDocuments({
       status: "Active",
       role: { $ne: "Admin" },
+      ...(scopedUserIds ? { _id: { $in: scopedUserIds } } : {}),
     });
 
     const recordedCount = totals.recorded || 0;

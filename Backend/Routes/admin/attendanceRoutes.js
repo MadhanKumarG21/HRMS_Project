@@ -9,6 +9,7 @@ import {
   updateAttendance,
   deleteAttendance,
   getAttendanceStats,
+  getAttendanceUsers,
   getAttendanceByUserId,
   getAttendanceByDate,
   getMyTodayAttendance,
@@ -18,9 +19,10 @@ import {
   continueWork,
   processMissedCheckouts,
 } from '../../Controllers/admin/attendanceController.js';
-import { verifyToken, requirePermission, requireAdmin, handleValidationErrors } from '../../Middleware/authmiddleware.js';
+import { verifyToken, requirePermission, requireAdmin, requireActiveModule, handleValidationErrors } from '../../Middleware/authmiddleware.js';
 
 const router = express.Router();
+router.use(requireActiveModule('attendance'));
 
 // ─── Self-Service Check-In / Check-Out ──────────────────────────────────────
 // No special permission required beyond being logged in — these endpoints
@@ -48,6 +50,8 @@ router.post(
 router.post("/continue-work", verifyToken, continueWork);
 
 // ─── Admin / Reporting Routes ───────────────────────────────────────────────
+
+router.get('/users', verifyToken, requirePermission('attendance.mark'), getAttendanceUsers);
 
 // Get all attendance records (authenticated users can view)
 router.get(

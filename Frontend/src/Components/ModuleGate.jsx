@@ -1,12 +1,12 @@
 import { useModules } from "./modules/ModulesContext";
+import { useAuth } from "../hooks/useAuth.jsx";
 
-function SuspendedNotice({ moduleKey }) {
+function AccessDeniedNotice({ moduleKey, reason }) {
     return (
         <div className="module-suspended">
-            <h2>Module Unavailable</h2>
+            <h2>{reason ? "Access Restricted" : "Module Unavailable"}</h2>
             <p>
-                The "{moduleKey}" module is currently suspended. Contact your
-                administrator if you believe this is a mistake.
+                {reason || `The "${moduleKey}" module is currently suspended. Contact your administrator if you believe this is a mistake.`}
             </p>
         </div>
     );
@@ -28,11 +28,19 @@ function ModuleLoading() {
  *
  * Usage: <ModuleGate moduleKey="employees"><Employees /></ModuleGate>
  */
-export default function ModuleGate({ moduleKey, children }) {
+export default function ModuleGate({ moduleKey, permission, adminOnly = false, children }) {
     const { getModuleStatus } = useModules();
+    const { hasPermission, isAdmin } = useAuth();
     const status = getModuleStatus(moduleKey);
 
     if (status === "unknown") return <ModuleLoading />;
-    if (status === "suspended") return <SuspendedNotice moduleKey={moduleKey} />;
+    if (status === "suspended") return <AccessDeniedNotice moduleKey={moduleKey} />;
+    const permissions = Array.isArray(permission) ? permission : [permission];
+    if (adminOnly && !isAdmin) {
+        return <AccessDeniedNotice reason="This page is available to administrators only." />;
+    }
+    if (permissions.filter(Boolean).length && !permissions.some(hasPermission)) {
+        return <AccessDeniedNotice reason="Your role does not have permission to access this page." />;
+    }
     return children;
 }

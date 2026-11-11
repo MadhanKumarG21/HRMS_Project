@@ -24,7 +24,9 @@ function normalizeUser(data) {
     name: data.name,
     email: data.email,
     role: data.role,
+    permissions: Array.isArray(data.permissions) ? data.permissions : [],
     department: data.department,
+    employeeId: data.employeeId,
     profileImage: data.profileImage || "",
   };
 }
@@ -164,13 +166,25 @@ export function AuthProvider({ children }) {
 
   const roleName =
     typeof user?.role === "object" ? user.role?.name : user?.role;
+  const isAdmin =
+    roleName?.toLowerCase() === "admin" ||
+    user?.permissions?.includes("all:access") === true;
+  const hasPermission = useCallback(
+    (permission) =>
+      isAdmin ||
+      user?.permissions?.includes("all:access") === true ||
+      user?.permissions?.includes(permission) === true,
+    [isAdmin, user?.permissions],
+  );
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user?.email,
-        isAdmin: roleName?.toLowerCase() === "admin",
+        isAdmin,
+        roleName,
+        hasPermission,
         loading,
         error,
         login,

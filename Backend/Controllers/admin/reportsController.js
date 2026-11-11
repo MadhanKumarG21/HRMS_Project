@@ -12,6 +12,33 @@ import AuditLog from '../../Models/AuditLog.js';
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+const getRoleName = (req) => {
+    const role = req.user?.role;
+    return (typeof role === 'object' ? role?.name : role || '').toLowerCase();
+};
+
+const getReportUserFilter = async (req, department) => {
+    const filter = department ? { department } : {};
+    if (getRoleName(req) === 'admin' || (req.user?.permissions || []).includes('all:access')) {
+        return filter;
+    }
+
+    if (getRoleName(req) === 'employee') {
+        filter._id = req.user._id;
+    } else if (getRoleName(req) === 'manager') {
+        if (!req.user.department) {
+            filter._id = req.user._id;
+        } else {
+            const team = await User.find({
+                department: req.user.department,
+                role: { $nin: ['Admin', 'HR'] },
+            }).select('_id').lean();
+            filter._id = { $in: team.map((user) => user._id) };
+        }
+    }
+    return filter;
+};
+
 // ─── Get Report Types ──────────────────────────────────────────────────────
 export const getReportTypes = async (req, res) => {
     try {
@@ -32,14 +59,14 @@ export const getReportTypes = async (req, res) => {
 export const generateEmployeeReport = async (req, res) => {
     try {
         const { department, status, page = 1, limit = 100 } = req.query;
-        const filter = {};
+        const filter = await getReportUserFilter(req, department);
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
-        if (department) filter.department = department;
         if (status) filter.status = status;
 
         const [employees, total] = await Promise.all([
             User.find(filter)
+                .select('name email employeeId department designation joiningDate status role')
                 .sort({ employeeId: 1 })
                 .skip(skip)
                 .limit(parseInt(limit)),
@@ -89,15 +116,9 @@ export const generateAttendanceReport = async (req, res) => {
             getAttendanceTimeContext(to),
         ]);
 
-        // Get users in department if specified
-        let userIds = [];
-        if (department) {
-            const employees = await User.find({ department }).select('_id');
-            userIds = employees.map((e) => e._id);
-        } else {
-            const users = await User.find({}).select('_id');
-            userIds = users.map((u) => u._id);
-        }
+        const userFilter = await getReportUserFilter(req, department);
+        const users = await User.find(userFilter).select('_id');
+        const userIds = users.map((user) => user._id);
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -141,15 +162,9 @@ export const generateLeaveReport = async (req, res) => {
     try {
         const { department, status, page = 1, limit = 100 } = req.query;
 
-        // Get users in department if specified
-        let userIds = [];
-        if (department) {
-            const employees = await User.find({ department }).select('_id');
-            userIds = employees.map((e) => e._id);
-        } else {
-            const users = await User.find({}).select('_id');
-            userIds = users.map((u) => u._id);
-        }
+        const userFilter = await getReportUserFilter(req, department);
+        const users = await User.find(userFilter).select('_id');
+        const userIds = users.map((user) => user._id);
 
         const leaveFilter = {
             userId: { $in: userIds },
@@ -196,7 +211,10 @@ export const generatePayrollReport = async (req, res) => {
             return res.status(400).json({ message: 'Month and year are required' });
         }
 
-        const employees = await User.find({ status: 'Active' });
+        const employeeFilter = await getReportUserFilter(req);
+        employeeFilter.status = 'Active';
+        const employees = await User.find(employeeFilter)
+            .select('employeeId name department designation');
 
         if (employees.length === 0) {
             return res.status(200).json({

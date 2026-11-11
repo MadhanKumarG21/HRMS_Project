@@ -10,10 +10,11 @@ import {
   deleteUser as deleteEmployee,
   getEmployeeStats,
 } from '../../Controllers/admin/userController.js';
-import { verifyToken, requirePermission, handleValidationErrors } from '../../Middleware/authmiddleware.js';
+import { verifyToken, requirePermission, requireActiveModule, handleValidationErrors } from '../../Middleware/authmiddleware.js';
 import { param } from 'express-validator';
 
 const router = express.Router();
+router.use(requireActiveModule('employees'));
 
 const getAllEmployees = (req, res) =>
   getAllUsers(

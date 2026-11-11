@@ -12,9 +12,10 @@ import {
   getLeaveByUserId,
   processExpiredLeaves,
 } from '../../Controllers/admin/leaveController.js';
-import { verifyToken, requireAdmin, handleValidationErrors } from '../../Middleware/authmiddleware.js';
+import { verifyToken, requirePermission, requireLeaveDecisionPermission, requireAdmin, requireActiveModule, handleValidationErrors } from '../../Middleware/authmiddleware.js';
 
 const router = express.Router();
+router.use(requireActiveModule('leave_management'));
 
 // Get all leave requests (authenticated users can view)
 router.get(
@@ -36,7 +37,7 @@ router.get(
 );
 
 // Get leave statistics (admin only)
-router.get('/stats', verifyToken, requireAdmin, getLeaveStats);
+router.get('/stats', verifyToken, requirePermission('leave.view'), getLeaveStats);
 
 // Manually trigger the expired-leave auto-reject sweep (admin only)
 router.post('/process-expired', verifyToken, requireAdmin, processExpiredLeaves);
@@ -67,6 +68,7 @@ router.get(
 router.post(
   '/',
   verifyToken,
+  requirePermission('leave.create'),
   [
     body('userId').isMongoId().withMessage('Invalid user ID'),
     body('type')
@@ -84,7 +86,7 @@ router.post(
 router.patch(
   '/:id/status',
   verifyToken,
-  requireAdmin,
+  requireLeaveDecisionPermission,
   [
     param('id').isMongoId().withMessage('Invalid leave ID'),
     body('status')

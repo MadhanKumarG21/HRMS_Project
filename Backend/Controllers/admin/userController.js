@@ -33,6 +33,30 @@ const mapStatusForUserAndEmployee = (status) => {
   return { userStatus: status, employeeStatus: status };
 };
 
+const getRoleName = (req) => {
+  const role = req.user?.role;
+  return (typeof role === "object" ? role?.name : role || "").toLowerCase();
+};
+
+const hasFullAccess = (req) =>
+  getRoleName(req) === "admin" ||
+  (req.user?.permissions || []).includes("all:access");
+
+const isElevatedRole = (role) =>
+  ["admin", "hr", "manager"].includes(String(role || "").toLowerCase());
+
+const applyUserDataScope = (filter, req) => {
+  if (hasFullAccess(req)) return filter;
+  const role = getRoleName(req);
+  if (role === "employee") {
+    filter._id = req.user._id;
+  } else if (role === "manager") {
+    filter.department = req.user.department || "__no_department__";
+    filter.role = { $nin: ["Admin", "HR"] };
+  }
+  return filter;
+};
+
 // ─── Create User Account ───────────────────────────────────────────────────
 export const createUserAccount = async (req, res) => {
   try {
@@ -44,6 +68,16 @@ export const createUserAccount = async (req, res) => {
         message: "All fields are required",
         errors: ["Name, email, password, role, department, and status are required"],
       });
+    }
+
+    if (!hasFullAccess(req) && String(roleName).toLowerCase() !== "employee") {
+      return res.status(403).json({ message: "Only administrators can assign elevated roles" });
+    }
+    const targetDepartment = getRoleName(req) === "manager"
+      ? req.user.department
+      : department;
+    if (!targetDepartment) {
+      return res.status(403).json({ message: "A department is required for this account" });
     }
 
     if (confirmPassword !== undefined && password !== confirmPassword) {
@@ -87,7 +121,7 @@ export const createUserAccount = async (req, res) => {
       email,
       password: hashedPassword,
       role: roleName,
-      department,
+      department: targetDepartment,
       status: userStatus,
       ...employeeFields,
       passwordChangedAt: new Date(),
@@ -105,7 +139,8 @@ export const createUserAccount = async (req, res) => {
         req.headers["x-forwarded-for"] || req.socket?.remoteAddress || req.ip,
     });
 
-    const user = await User.findById(newUser._id).select("-password");
+    const user = await User.findById(newUser._id)
+      .select("-password -passwordHistory -activeSessions -twoFactorSecret -twoFactorTempSecret -twoFactorBackupCodes");
     res.status(201).json({
       message: "User created successfully",
       user,
@@ -259,10 +294,11 @@ export const getAllUsers = async (req, res) => {
         { status: searchRegex },
       ];
     }
+    applyUserDataScope(filter, req);
 
     const [users, total] = await Promise.all([
       User.find(filter)
-        .select("-password")
+        .select("-password -passwordHistory -activeSessions -twoFactorSecret -twoFactorTempSecret -twoFactorBackupCodes")
         .sort({ [sortBy]: order === "desc" ? -1 : 1 })
         .skip(skip)
         .limit(parseInt(limit))
@@ -287,11 +323,13 @@ export const getAllUsers = async (req, res) => {
 // ─── Get Employee Stats ───────────────────────────────────────────────────
 export const getEmployeeStats = async (req, res) => {
   try {
+    const filter = applyUserDataScope({}, req);
     const [statsAgg, total] = await Promise.all([
       User.aggregate([
+        { $match: filter },
         { $group: { _id: "$status", count: { $sum: 1 } } }
       ]),
-      User.countDocuments()
+      User.countDocuments(filter)
     ]);
 
     let active = 0;
@@ -325,8 +363,17 @@ export const getUserById = async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID format" });
     }
 
-    const user = await User.findById(id).select("-password");
+    const user = await User.findById(id)
+      .select("-password -passwordHistory -activeSessions -twoFactorSecret -twoFactorTempSecret -twoFactorBackupCodes");
     if (!user) return res.status(404).json({ message: "User not found" });
+    const role = getRoleName(req);
+    if (
+      !hasFullAccess(req) &&
+      ((role === "employee" && String(user._id) !== String(req.user._id)) ||
+        (role === "manager" && user.department !== req.user.department))
+    ) {
+      return res.status(403).json({ message: "Access denied to this employee record" });
+    }
 
     res.status(200).json(user);
   } catch (error) {
@@ -346,6 +393,29 @@ export const updateUser = async (req, res) => {
 
     if (!isValidObjectId(id)) {
       return res.status(400).json({ message: "Invalid user ID format" });
+    }
+    const existingUser = await User.findById(id).select("role department");
+    if (!existingUser) return res.status(404).json({ message: "User not found" });
+    if (!hasFullAccess(req)) {
+      if (isElevatedRole(existingUser.role)) {
+        return res.status(403).json({ message: "Access denied to this employee record" });
+      }
+      if (getRoleName(req) === "manager" && existingUser.department !== req.user.department) {
+        return res.status(403).json({ message: "Access denied to this employee record" });
+      }
+      if (roleName !== undefined) {
+        return res.status(403).json({ message: "Only administrators can change user roles" });
+      }
+      if (getRoleName(req) === "manager" && password !== undefined) {
+        return res.status(403).json({ message: "Managers cannot change employee passwords" });
+      }
+      if (
+        getRoleName(req) === "manager" &&
+        department !== undefined &&
+        department !== existingUser.department
+      ) {
+        return res.status(403).json({ message: "Managers cannot move employees between departments" });
+      }
     }
 
     const updates = pickEmployeeFields(req.body);
@@ -415,7 +485,7 @@ export const updateUser = async (req, res) => {
     const user = await User.findByIdAndUpdate(id, updates, {
       returnDocument: "after",
       runValidators: true,
-    }).select("-password");
+    }).select("-password -passwordHistory -activeSessions -twoFactorSecret -twoFactorTempSecret -twoFactorBackupCodes");
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -471,7 +541,13 @@ export const toggleUserStatus = async (req, res) => {
 
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: "User not found" });
-
+    if (
+      !hasFullAccess(req) &&
+      (isElevatedRole(user.role) ||
+        (getRoleName(req) === "manager" && user.department !== req.user.department))
+    ) {
+      return res.status(403).json({ message: "Access denied to this employee record" });
+    }
     // Prevent deactivating the last active admin
     if (user.role === "Admin" && user.status === "Active") {
       const activeAdminCount = await User.countDocuments({
@@ -528,6 +604,13 @@ export const deleteUser = async (req, res) => {
 
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: "User not found" });
+    if (
+      !hasFullAccess(req) &&
+      (isElevatedRole(user.role) ||
+        (getRoleName(req) === "manager" && user.department !== req.user.department))
+    ) {
+      return res.status(403).json({ message: "Access denied to this employee record" });
+    }
 
     // Prevent deleting the last active admin
     if (user.role === "Admin" && user.status === "Active") {

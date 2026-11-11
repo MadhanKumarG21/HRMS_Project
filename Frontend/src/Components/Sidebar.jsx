@@ -19,13 +19,31 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }) {
-  const { logout } = useAuth();
+  const { logout, hasPermission, isAdmin, roleName } = useAuth();
   const { isModuleActive } = useModules();
   const navigate = useNavigate();
 
-  const visibleNavItems = NAV_ITEMS.filter(
-    (item) => !item.moduleKey || isModuleActive(item.moduleKey),
-  );
+  const permissionForPath = {
+    "/employees": "employees.view",
+    "/leave": "leave.view",
+    "/attendance": "attendance.view",
+    "/roles": "admin",
+    "/audit": "audit.view",
+    "/reports": "reports.view",
+    "/recruitment": "recruitment.manage",
+    "/settings": "admin",
+    "/modules": "admin",
+  };
+  const visibleNavItems = NAV_ITEMS.filter((item) => {
+    if (item.moduleKey && !isModuleActive(item.moduleKey)) return false;
+    if (item.to === "/dashboard") {
+      return isModuleActive("dashboard");
+    }
+    const permission = permissionForPath[item.to];
+    if (permission === "admin") return isAdmin;
+    if (permission) return hasPermission(permission);
+    return true;
+  });
 
   const handleLogout = async () => {
     onMobileClose();
@@ -49,7 +67,7 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }
         <div className="sidebar-brand">
           <div className="sidebar-brand-content">
             <strong>TechNova HRMS</strong>
-            <span>Admin control panel</span>
+            <span>{roleName || "Workspace"}</span>
           </div>
           <button
             type="button"

@@ -12,9 +12,10 @@ import {
   deleteMultipleNotifications,
   clearReadNotifications,
 } from '../../Controllers/admin/notificationController.js';
-import { verifyToken, requireAdmin, handleValidationErrors } from '../../Middleware/authmiddleware.js';
+import { verifyToken, requireAdmin, requireActiveModule, handleValidationErrors } from '../../Middleware/authmiddleware.js';
 
 const router = express.Router();
+router.use(requireActiveModule('notification'));
 
 // Any authenticated user — not admin-only.
 // Controller scopes visibility based on role (admins see broadcasts + their own; users see their own).

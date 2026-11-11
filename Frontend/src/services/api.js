@@ -536,6 +536,7 @@ export const employeeAPI = {
 export const leaveAPI = {
   // Get All Leave Requests
   getAll: (params) => fetchClient(`/leaves${buildQuery(params)}`),
+  getMine: (userId) => fetchClient(`/leaves/user/${userId}`),
 
   // Get Leave By ID
   getById: (id) => fetchClient(`/leaves/${id}`),
@@ -564,6 +565,8 @@ export const leaveAPI = {
 
 // ATTENDANCE APIs
 export const attendanceAPI = {
+  getUsers: () => fetchClient("/attendance/users"),
+
   getAll: (params) =>
     fetchClient(`/attendance${buildQuery(params)}`),
 
@@ -743,14 +746,17 @@ export const api = {
 
   // Leaves
   getLeaves: leaveAPI.getAll,
+  getMyLeaves: (userId) => leaveAPI.getMine(userId),
   getLeave: leaveAPI.getById,
   createLeave: leaveAPI.create,
+  applyForLeave: leaveAPI.create,
   updateLeaveStatus: leaveAPI.updateStatus,
   getLeaveStats: leaveAPI.getStats,
   processExpiredLeaves: leaveAPI.processExpired,
 
   // Attendance
   getAttendance: attendanceAPI.getAll,
+  getAttendanceUsers: attendanceAPI.getUsers,
   getAttendanceById: attendanceAPI.getById,
   getMyTodayAttendance: attendanceAPI.getMyTodayAttendance,
   getMyAttendanceHistory: attendanceAPI.getMyHistory,

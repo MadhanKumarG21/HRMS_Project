@@ -1,6 +1,5 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useState } from "react";
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth.jsx";
 import { ModulesProvider } from "./Components/modules/ModulesContext.jsx";
 import ModuleGate from "./Components/ModuleGate.jsx";
@@ -22,6 +21,7 @@ const Attendance = lazy(() => import("./pages/Attendance.jsx"));
 const Reports = lazy(() => import("./pages/Reports.jsx"));
 const Settings = lazy(() => import("./pages/Settings.jsx"));
 const Notification = lazy(() => import("./pages/Notification.jsx"));  
+const EmployeeDashboard = lazy(() => import("./pages/EmployeeDashboard.jsx"));
 
 /**
  * LoadingScreen — Shown while the auth session is being verified
@@ -36,24 +36,17 @@ function LoadingScreen() {
   );
 }
 
-function ProtectedRoute({ children }) {
-  const { isAuthenticated, isAdmin, loading, logout } = useAuth();
-  const navigate = useNavigate();
+function RoleDashboard() {
+  const { isAdmin, roleName } = useAuth();
+  if (isAdmin) return <Dashboard />;
+  return <EmployeeDashboard roleName={roleName} />;
+}
 
-  useEffect(() => {
-    if (isAuthenticated && !isAdmin) {
-      logout().finally(() => {
-        navigate("/login", {
-          replace: true,
-          state: { message: "Access denied. Only Admin users can access the dashboard." },
-        });
-      });
-    }
-  }, [isAuthenticated, isAdmin, logout, navigate]);
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
 
   if (loading) return <LoadingScreen />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (!isAdmin) return <LoadingScreen />;
   return children;
 }
 
@@ -127,7 +120,7 @@ export default function App() {
                 path="dashboard"
                 element={
                   <ModuleGate moduleKey="dashboard">
-                    <Dashboard />
+                    <RoleDashboard />
                   </ModuleGate>
                 }
               />
@@ -135,7 +128,7 @@ export default function App() {
               <Route
                 path="employees"
                 element={
-                  <ModuleGate moduleKey="employees">
+                  <ModuleGate moduleKey="employees" permission="employees.view">
                     <Employees />
                   </ModuleGate>
                 }
@@ -160,7 +153,7 @@ export default function App() {
               <Route
                 path="leave"
                 element={
-                  <ModuleGate moduleKey="leave_management">
+                  <ModuleGate moduleKey="leave_management" permission="leave.view">
                     <LeaveManagement />
                   </ModuleGate>
                 }
@@ -168,7 +161,7 @@ export default function App() {
               <Route
                 path="attendance"
                 element={
-                  <ModuleGate moduleKey="attendance">
+                  <ModuleGate moduleKey="attendance" permission="attendance.view">
                     <Attendance />
                   </ModuleGate>
                 }
@@ -176,7 +169,7 @@ export default function App() {
               <Route
                 path="roles"
                 element={
-                  <ModuleGate moduleKey="roles">
+                  <ModuleGate moduleKey="roles" adminOnly>
                     <Rolespermissions />
                   </ModuleGate>
                 }
@@ -184,19 +177,19 @@ export default function App() {
               <Route
                 path="audit"
                 element={
-                  <ModuleGate moduleKey="audit">
+                  <ModuleGate moduleKey="audit" permission="audit.view">
                     <AuditLog />
                   </ModuleGate>
                 }
               />
 
               {/* Modules page manages module status itself, so it is not gated */}
-              <Route path="modules" element={<Modules />} />
+              <Route path="modules" element={<ModuleGate adminOnly><Modules /></ModuleGate>} />
 
               <Route
                 path="recruitment"
                 element={
-                  <ModuleGate moduleKey="recruitment">
+                  <ModuleGate moduleKey="recruitment" permission="recruitment.manage">
                     <Recruitment />
                   </ModuleGate>
                 }
@@ -204,7 +197,7 @@ export default function App() {
               <Route
                 path="reports"
                 element={
-                  <ModuleGate moduleKey="reports">
+                  <ModuleGate moduleKey="reports" permission="reports.view">
                     <Reports />
                   </ModuleGate>
                 }
@@ -212,7 +205,7 @@ export default function App() {
               <Route
                 path="settings"
                 element={
-                  <ModuleGate moduleKey="settings">
+                  <ModuleGate moduleKey="settings" adminOnly>
                     <Settings />
                   </ModuleGate>
                 }

@@ -20,9 +20,12 @@ export const globalSearch = async (req, res) => {
         const searchRegex = new RegExp(escapeRegex(query), 'i');
         const limit = 10;
         const results = { users: [], auditLogs: [], modules: [] };
+        const role = typeof req.user?.role === 'object' ? req.user.role?.name : req.user?.role;
+        const isAdmin = role?.toLowerCase() === 'admin' ||
+            (req.user?.permissions || []).includes('all:access');
 
         if (!type || type === 'users') {
-            results.users = await User.find({
+            const userFilter = {
                 $or: [
                     { name: searchRegex },
                     { employeeId: searchRegex },
@@ -32,13 +35,28 @@ export const globalSearch = async (req, res) => {
                     { role: searchRegex },
                     { status: searchRegex },
                 ],
-            })
+            };
+            if (!isAdmin && role?.toLowerCase() === 'employee') {
+                userFilter._id = req.user._id;
+            } else if (!isAdmin && role?.toLowerCase() === 'manager' &&
+                (req.user?.permissions || []).includes('employees.view')) {
+                userFilter.department = req.user.department || '__no_department__';
+                userFilter.role = { $nin: ['Admin', 'HR'] };
+            } else if (!isAdmin && !(req.user?.permissions || []).includes('employees.view')) {
+                userFilter._id = req.user._id;
+            }
+            results.users = await User.find(userFilter)
                 .select('name email employeeId department designation role status profileImage')
                 .sort({ name: 1 })
                 .limit(limit);
         }
 
         if (!type || type === 'logs') {
+            if (!isAdmin && !(req.user?.permissions || []).includes('audit.view')) {
+                if (type === 'logs') {
+                    return res.status(403).json({ message: 'Insufficient permissions to search audit logs' });
+                }
+            } else {
             results.auditLogs = await AuditLog.find({
                 $or: [
                     { adminName: searchRegex },
@@ -48,9 +66,11 @@ export const globalSearch = async (req, res) => {
             })
                 .sort({ timestamp: -1 })
                 .limit(limit);
+            }
         }
 
         if (!type || type === 'modules') {
+            if (isAdmin) {
             results.modules = await Module.find({
                 $or: [
                     { name: searchRegex },
@@ -58,6 +78,7 @@ export const globalSearch = async (req, res) => {
                     { description: searchRegex },
                 ],
             }).limit(limit);
+            }
         }
 
         const totalCount = results.users.length + results.auditLogs.length + results.modules.length;

@@ -14,9 +14,10 @@ import {
   restoreFromBackup,
   getBackupHistory,
 } from '../../Controllers/admin/settingsController.js';
-import { verifyToken, requireAdmin, handleValidationErrors } from '../../Middleware/authmiddleware.js';
+import { verifyToken, requireAdmin, requireActiveModule, handleValidationErrors } from '../../Middleware/authmiddleware.js';
 
 const router = express.Router();
+router.use(requireActiveModule('settings'));
 
 // Get all settings (admin only)
 router.get('/', verifyToken, requireAdmin, getAllSettings);

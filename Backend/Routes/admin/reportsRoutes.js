@@ -9,9 +9,10 @@ import {
   generatePayrollReport,
   getReportTypes,
 } from '../../Controllers/admin/reportsController.js';
-import { verifyToken, requirePermission, handleValidationErrors } from '../../Middleware/authmiddleware.js';
+import { verifyToken, requirePermission, requireActiveModule, handleValidationErrors } from '../../Middleware/authmiddleware.js';
 
 const router = express.Router();
+router.use(requireActiveModule('reports'));
 
 // Get available report types (admin only)
 router.get(

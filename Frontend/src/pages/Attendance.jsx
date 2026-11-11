@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { api } from "../services/api.js";
+import { useAuth } from "../hooks/useAuth.jsx";
 import Icon from "../Components/Icon.jsx";
 import MyAttendanceCheckInOut from "../Components/attendance/Myattendancecheckinout.jsx";
 import "../styles/Attendance.css";
@@ -29,6 +30,7 @@ const STATUS_BADGE_CLASSES = {
 };
 const STATUS_OPTIONS = Object.values(ATTENDANCE_STATUSES);
 export default function Attendance() {
+  const { hasPermission } = useAuth();
   const [attendance, setAttendance] = useState([]);
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({
@@ -154,7 +156,7 @@ export default function Attendance() {
 
       const [attendanceRes, usersRes, statsRes] = await Promise.all([
         api.getAttendance(params),
-        api.getUsers(),
+        hasPermission("attendance.mark") ? api.getAttendanceUsers() : Promise.resolve({ data: [] }),
         api.getAttendanceStats(params),
       ]);
 
@@ -204,7 +206,7 @@ export default function Attendance() {
     } finally {
       setLoading(false);
     }
-  }, [filterDate]);
+  }, [filterDate, hasPermission]);
 
   // INITIAL LOAD + DATE CHANGE
   useEffect(() => {
@@ -559,7 +561,7 @@ export default function Attendance() {
 
           {/* Mark attendance */}
 
-          <button
+          {hasPermission("attendance.mark") && users.length > 0 && <button
             type="button"
             className="btn-primary"
             onClick={() => {
@@ -570,7 +572,7 @@ export default function Attendance() {
           >
             <Icon name="add" />
             Mark Attendance
-          </button>
+          </button>}
         </div>
       </header>
       {error && (
@@ -763,7 +765,7 @@ export default function Attendance() {
                       <div className="action-buttons">
                         {/* Edit */}
 
-                        <button
+                        {hasPermission("attendance.update") && <button
                           type="button"
                           className="btn-action edit"
                           onClick={() =>
@@ -778,11 +780,11 @@ export default function Attendance() {
                           disabled={editingLoading || isSyntheticAbsent}
                         >
                           <Icon name="edit" />
-                        </button>
+                        </button>}
 
                         {/* Delete */}
 
-                        <button
+                        {hasPermission("attendance.delete") && <button
                           type="button"
                           className="btn-action delete"
                           onClick={() => {
@@ -799,7 +801,7 @@ export default function Attendance() {
                           disabled={isSyntheticAbsent}
                         >
                           <Icon name="delete" />
-                        </button>
+                        </button>}
                       </div>
                     </td>
                   </tr>

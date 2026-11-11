@@ -11,27 +11,10 @@ import {
   deleteCandidate,
 } from "../../Controllers/admin/recruitmentController.js";
 import { recruitmentUpload } from "../../Middleware/recruitmentUpload.js";
-import { verifyToken } from "../../Middleware/authmiddleware.js";
+import { verifyToken, requirePermission, requireActiveModule } from "../../Middleware/authmiddleware.js";
 
 const router = express.Router();
-
-function requireRecruitmentAccess(req, res, next) {
-  const role = typeof req.user?.role === "object"
-    ? req.user.role?.name
-    : req.user?.role;
-
-  if (
-    ["admin", "hr"].includes(String(role || "").toLowerCase()) ||
-    req.user?.permissions?.includes("recruitment.manage") ||
-    req.user?.permissions?.includes("all:access")
-  ) {
-    return next();
-  }
-
-  return res.status(403).json({
-    message: "HR or administrative access is required for recruitment.",
-  });
-}
+router.use(requireActiveModule("recruitment"));
 
 function uploadResume(req, res, next) {
   recruitmentUpload.fields([
@@ -46,7 +29,7 @@ function uploadResume(req, res, next) {
   });
 }
 
-const protect = [verifyToken, requireRecruitmentAccess];
+const protect = [verifyToken, requirePermission("recruitment.manage")];
 
 router.post("/requirements", ...protect, createRequirement);
 router.get("/requirements", ...protect, getRequirements);

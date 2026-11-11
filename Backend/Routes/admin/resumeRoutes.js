@@ -7,10 +7,11 @@ import fs from "fs";
 import crypto from "crypto";
 import path from "path";
 import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
-import { verifyToken, requireAdmin } from "../../Middleware/authmiddleware.js";
+import { verifyToken, requirePermission, requireActiveModule } from "../../Middleware/authmiddleware.js";
 import AuditLog from "../../Models/AuditLog.js";
 
 const router = express.Router();
+router.use(requireActiveModule("recruitment"));
 
 // Upload folder for temporary resume storage
 const uploadDir = "uploads/tmp_resumes";
@@ -192,11 +193,11 @@ function cleanup(files = []) {
   });
 }
 
-// POST /batch-screen — Admin-only bulk resume screening against a job description
+// POST /batch-screen — Permission-protected bulk resume screening
 router.post(
   "/batch-screen",
   verifyToken,
-  requireAdmin,
+  requirePermission("recruitment.manage"),
   upload.array("resumes", 50),
   async (req, res) => {
     const files = req.files || [];

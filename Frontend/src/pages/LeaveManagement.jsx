@@ -1,6 +1,7 @@
 // src/pages/LeaveManagement.jsx
 import { useState, useEffect, useCallback, useRef, useMemo, useReducer } from "react";
 import { api } from "../services/api.js";
+import { useAuth } from "../hooks/useAuth.jsx";
 import Icon from "../Components/Icon.jsx";
 import Pagination from "../Components/Pagination.jsx";
 import RejectLeaveModal from "../Components/leave/RejectLeaveModal.jsx";
@@ -258,6 +259,7 @@ const normalizeEmployees = (rawUsers, rawEmployees) => {
 // MAIN COMPONENT
 // ============================================
 export default function LeaveManagement() {
+  const { user, isAdmin, hasPermission } = useAuth();
   const [state, dispatch] = useReducer(reducer, initialState);
   const employeeSearchRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -337,8 +339,8 @@ export default function LeaveManagement() {
 
       const [leavesRes, usersRes, employeesRes, statsRes] = await Promise.all([
         api.getLeaves(),
-        api.getUsers(),
-        api.getEmployees(),
+        isAdmin ? api.getUsers() : Promise.resolve({ data: [user] }),
+        isAdmin ? api.getEmployees() : Promise.resolve({ data: [] }),
         api.getLeaveStats(),
       ]);
 
@@ -370,7 +372,7 @@ export default function LeaveManagement() {
         dispatch({ type: ACTIONS.SET_LOADING, payload: false });
       }
     }
-  }, []);
+  }, [isAdmin, user]);
 
   // Lightweight refresh after a status change: just leaves + stats, not the full user list
   const refreshLeaves = useCallback(async () => {
@@ -654,7 +656,8 @@ export default function LeaveManagement() {
           </p>
         </div>
         <div className="header-actions">
-          <button
+          {isAdmin && <button
+            hidden={!isAdmin}
             className="btn-secondary"
             onClick={handleProcessExpired}
             disabled={isProcessingExpired}
@@ -662,14 +665,14 @@ export default function LeaveManagement() {
           >
             <Icon name="schedule" />
             {isProcessingExpired ? "Checking..." : "Check Overdue Requests"}
-          </button>
-          <button 
-            className="btn-primary" 
+          </button>}
+          {hasPermission("leave.create") && <button
+            className="btn-primary"
             onClick={handleOpenModal}
             disabled={state.employees.length === 0}
           >
             <Icon name="add" /> Apply Leave
-          </button>
+          </button>}
         </div>
       </header>
 
@@ -833,8 +836,9 @@ export default function LeaveManagement() {
                       )}
                     </td>
                     <td className="actions-cell">
-                      {leave.status === "Pending" && (
+                      {leave.status === "Pending" && (hasPermission("leave.approve") || hasPermission("leave.reject")) && (
                         <>
+                          {hasPermission("leave.approve") && (
                           <button
                             className="btn-action approve"
                             onClick={() => handleStatusUpdate(leave._id, "Approved")}
@@ -843,6 +847,8 @@ export default function LeaveManagement() {
                           >
                             <Icon name="check_circle" />
                           </button>
+                          )}
+                          {hasPermission("leave.reject") && (
                           <button
                             className="btn-action reject"
                             onClick={() => dispatch({ 
@@ -854,6 +860,7 @@ export default function LeaveManagement() {
                           >
                             <Icon name="close" />
                           </button>
+                          )}
                         </>
                       )}
                     </td>

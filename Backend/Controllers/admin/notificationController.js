@@ -3,7 +3,7 @@ import Notification from '../../Models/Notification.js';
 
 const isAdminUser = (req) => {
   const role = typeof req.user.role === 'object' ? req.user.role?.name : req.user.role;
-  return role?.toLowerCase() === 'admin';
+  return role?.toLowerCase() === 'admin' || (req.user.permissions || []).includes('all:access');
 };
 
 // Admin-only alerts stay out of employee feeds; admin-created announcements

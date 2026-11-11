@@ -11,14 +11,33 @@ const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const isAdminUser = (req) => {
     const role = typeof req.user?.role === 'object' ? req.user.role?.name : req.user?.role;
-    return role?.toLowerCase() === 'admin';
+    return role?.toLowerCase() === 'admin' || (req.user?.permissions || []).includes('all:access');
+};
+const getRoleName = (req) => {
+    const role = typeof req.user?.role === 'object' ? req.user.role?.name : req.user?.role;
+    return (role || '').toLowerCase();
+};
+const hasPermission = (req, permission) =>
+    isAdminUser(req) || (req.user?.permissions || []).includes(permission);
+
+const canViewUserLeave = async (req, userId, permission = 'leave.view') => {
+    if (isAdminUser(req) || String(userId) === String(req.user._id)) return true;
+    if (!hasPermission(req, permission)) return false;
+    if (getRoleName(req) !== 'manager') return true;
+    if (!req.user.department) return false;
+    const user = await User.findById(userId).select('department role').lean();
+    return Boolean(
+        user &&
+        user.department === req.user.department &&
+        !['admin', 'hr'].includes(String(user.role || '').toLowerCase()),
+    );
 };
 
 // ─── Get All Leaves ────────────────────────────────────────────────────────
 // Supports filtering by status, type, and date range with pagination.
 export const getAllLeaves = async (req, res) => {
     try {
-        const { status, type, from, to, page = 1, limit = 50 } = req.query;
+        const { status, type, from, to, userId, page = 1, limit = 50 } = req.query;
         const filter = {};
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -28,11 +47,26 @@ export const getAllLeaves = async (req, res) => {
         // whoever asks. This was harmless only while login itself was
         // Admin-only; now that any Active account can log in, it's a real
         // privacy leak. Admins still see everyone, or filter by any userId.
-        const isAdmin = isAdminUser(req);
-        if (!isAdmin) {
+        if (isAdminUser(req)) {
+            if (userId) filter.userId = userId;
+        } else if (getRoleName(req) === 'employee') {
             filter.userId = req.user._id;
-        } else if (req.query.userId) {
-            filter.userId = req.query.userId;
+        } else if (hasPermission(req, 'leave.view')) {
+            if (getRoleName(req) === 'manager') {
+                if (!req.user.department) {
+                    filter.userId = req.user._id;
+                } else {
+                const users = await User.find({
+                    department: req.user.department,
+                    role: { $nin: ['Admin', 'HR'] },
+                }).select('_id').lean();
+                filter.userId = { $in: users.map((user) => user._id) };
+                }
+            } else if (userId) {
+                filter.userId = userId;
+            }
+        } else {
+            filter.userId = req.user._id;
         }
 
         if (status) filter.status = status;
@@ -79,8 +113,9 @@ export const getLeaveById = async (req, res) => {
             return res.status(404).json({ message: 'Leave not found' });
         }
 
-        if (!isAdminUser(req) && String(leave.userId?._id || leave.userId) !== String(req.user._id)) {
-            return res.status(403).json({ message: 'Access denied: you can only view your own leave requests' });
+        const leaveUserId = leave.userId?._id || leave.userId;
+        if (!(await canViewUserLeave(req, leaveUserId))) {
+            return res.status(403).json({ message: 'Access denied to this leave request' });
         }
 
         res.status(200).json(leave);
@@ -99,7 +134,10 @@ export const getLeaveByUserId = async (req, res) => {
             return res.status(400).json({ message: 'Invalid user ID format' });
         }
 
-        const requestedUserId = isAdminUser(req) ? userId : req.user._id;
+        if (!(await canViewUserLeave(req, userId))) {
+            return res.status(403).json({ message: 'Access denied to these leave requests' });
+        }
+        const requestedUserId = userId;
         const leaves = await Leave.find({ userId: requestedUserId })
             .populate('userId', 'name email department')
             .populate('approvedBy', 'name')
@@ -223,6 +261,13 @@ export const updateLeaveStatus = async (req, res) => {
         if (!leave) {
             return res.status(404).json({ message: 'Leave not found' });
         }
+        if (!isAdminUser(req) && String(leave.userId) === String(req.user._id)) {
+            return res.status(403).json({ message: 'You cannot approve or reject your own leave request' });
+        }
+        const decisionPermission = status === 'Rejected' ? 'leave.reject' : 'leave.approve';
+        if (!(await canViewUserLeave(req, leave.userId, decisionPermission))) {
+            return res.status(403).json({ message: 'Access denied to this leave request' });
+        }
 
         // Rejection requires a reason
         if (status === 'Rejected' && !rejectionReason) {
@@ -282,7 +327,24 @@ export const processExpiredLeaves = async (req, res) => {
 // Returns status counts using a single aggregation.
 export const getLeaveStats = async (req, res) => {
     try {
+        let userIdFilter;
+        if (!isAdminUser(req)) {
+            if (getRoleName(req) === 'employee' || !hasPermission(req, 'leave.view')) {
+                userIdFilter = [req.user._id];
+            } else if (getRoleName(req) === 'manager') {
+                if (!req.user.department) {
+                    userIdFilter = [req.user._id];
+                } else {
+                    const users = await User.find({
+                        department: req.user.department,
+                        role: { $nin: ['Admin', 'HR'] },
+                    }).select('_id').lean();
+                    userIdFilter = users.map((user) => user._id);
+                }
+            }
+        }
         const stats = await Leave.aggregate([
+            ...(userIdFilter ? [{ $match: { userId: { $in: userIdFilter } } }] : []),
             {
                 $group: {
                     _id: '$status',

@@ -25,6 +25,7 @@ const ALL_PERMISSIONS = [
   { key: "audit.export", label: "Export Audit Logs", category: "Audit" },
   { key: "reports.view", label: "View Reports", category: "Reports" },
   { key: "reports.export", label: "Export Reports", category: "Reports" },
+  { key: "recruitment.manage", label: "Manage Recruitment", category: "Recruitment" },
   { key: "all:access", label: "Full Admin Access", category: "System" },
 ];
 

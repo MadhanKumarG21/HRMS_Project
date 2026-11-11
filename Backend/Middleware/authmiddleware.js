@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { validationResult } from "express-validator";
 import { config } from "../config/config.js";
 import User from "../Models/User.js";
+import Module from "../Models/Modules.js";
 import { getCachedPermissionsForRole } from "../config/roleCache.js";
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -84,7 +85,9 @@ export const requireAdmin = (req, res, next) => {
     userRole = userRole.name;
   }
 
-  const isAdmin = userRole && userRole.toLowerCase() === "admin";
+  const isAdmin =
+    (userRole && userRole.toLowerCase() === "admin") ||
+    req.user.permissions?.includes("all:access");
 
   if (!isAdmin) {
     return res.status(403).json({
@@ -103,7 +106,10 @@ export const requirePermission = (...requiredPermissions) => {
     const userRole =
       typeof req.user.role === "object" ? req.user.role?.name : req.user.role;
 
-    if (userRole?.toLowerCase() === "admin") {
+    if (
+      userRole?.toLowerCase() === "admin" ||
+      req.user.permissions?.includes("all:access")
+    ) {
       return next();
     }
     const userPermissions = req.user.permissions || [];
@@ -117,6 +123,23 @@ export const requirePermission = (...requiredPermissions) => {
     }
     next();
   };
+};
+
+export const requireActiveModule = (moduleName) => async (req, res, next) => {
+  try {
+    const module = await Module.findOne({
+      name: { $regex: `^${escapeRegex(moduleName)}$`, $options: "i" },
+    }).select("status");
+
+    if (module && module.status !== "Active") {
+      return res.status(403).json({ message: "This module is currently suspended" });
+    }
+
+    return next();
+  } catch (error) {
+    console.error(`[Auth] Failed to verify ${moduleName} module status:`, error);
+    return res.status(500).json({ message: "Unable to verify module availability" });
+  }
 };
 
 export const requireLeaveDecisionPermission = (req, res, next) => {

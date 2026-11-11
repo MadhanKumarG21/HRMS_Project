@@ -1,6 +1,7 @@
 // frontend/src/Pages/Employees.jsx
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth.jsx";
 import { api } from "../services/api.js";
 import Icon from "../Components/Icon.jsx";
 import Pagination from "../Components/Pagination.jsx";
@@ -9,6 +10,7 @@ import EmployeeDetailModal from "../Components/usermagement/EmployeeDetailModal.
 import "../styles/Employees.css";
 
 export default function Employees() {
+  const { hasPermission, isAdmin } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
   const selectedEmployeeId = searchParams.get("employeeId");
@@ -46,7 +48,7 @@ export default function Employees() {
         // though the total count (a separate, unfiltered query) was
         // already correct.
         api.getEmployees({ limit: 1000 }).catch(() => api.getUsers()),
-        api.getRoles(),
+        isAdmin ? api.getRoles() : Promise.resolve([{ _id: "employee-role", name: "Employee" }]),
         api.getEmployeeStats(),
       ]);
 
@@ -101,7 +103,7 @@ export default function Employees() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     loadData();
@@ -258,7 +260,7 @@ const clearFilters = () => {
           <h1>Employees</h1>
           <p className="page-subtitle">{employees.length} total users/employees registered</p>
         </div>
-        <button
+        {hasPermission("employees.create") && <button
           className="btn-primary"
           onClick={() => {
             setEditingEmployee(null);
@@ -266,7 +268,7 @@ const clearFilters = () => {
           }}
         >
           <Icon name="person_add" /> Add Employee
-        </button>
+        </button>}
       </header>
 
       {error && <div className="error-message">{error}</div>}
@@ -425,18 +427,18 @@ const clearFilters = () => {
                       </span>
                     </td>
                     <td>
-                      <button
+                      {hasPermission("employees.update") && <button
                         className="btn-action edit"
                         onClick={() => handleEdit(emp)}
                       >
                         <Icon name="edit" />
-                      </button>
-                      <button
+                      </button>}
+                      {hasPermission("employees.delete") && <button
                         className="btn-action danger"
                         onClick={() => handleDelete(empId,emp.role)}
                       >
                         <Icon name="delete" />
-                      </button>
+                      </button>}
                     </td>
                   </tr>
                 );
@@ -459,7 +461,7 @@ const clearFilters = () => {
       <EmployeeModal
         open={showModal}
         onClose={() => setShowModal(false)}
-        roles={roles}
+        roles={isAdmin ? roles : roles.filter((role) => role.name === "Employee")}
         editingEmployee={editingEmployee}
         onSaved={loadData}
       />
@@ -469,7 +471,7 @@ const clearFilters = () => {
         open={showDetailModal}
         onClose={closeDetailModal}
         employee={viewingEmployee}
-        onEdit={handleEdit}
+        onEdit={isAdmin || hasPermission("employees.update") ? handleEdit : undefined}
       />
     </div>
   );

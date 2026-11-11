@@ -43,6 +43,8 @@ import {
 import {
   verifyToken,
   requireAdmin,
+  requirePermission,
+  requireActiveModule,
   handleValidationErrors,
 } from "../Middleware/authmiddleware.js";
 import { body, query, param } from "express-validator";
@@ -62,6 +64,8 @@ import backupRoutes from "./admin/backupRoutes.js";
 import profileRoutes from "./admin/profileRoutes.js";
 
 const router = express.Router();
+router.use("/roles", requireActiveModule("roles"));
+router.use("/audit-logs", requireActiveModule("audit"));
 
 // ─── Auth Routes ────────────────────────────────────────────────────
 // Public: no token required
@@ -118,6 +122,7 @@ router.post(
 router.get(
   "/users",
   verifyToken,
+  requirePermission("employees.view"),
   [
     query("status").optional().isIn(["Active", "Inactive"]),
     query("sortBy").optional().isIn(["name", "email", "createdAt", "status"]),
@@ -132,6 +137,7 @@ router.get("/users/password-policy", verifyToken, getPasswordPolicy);
 router.get(
   "/users/:id",
   verifyToken,
+  requirePermission("employees.view"),
   [
     param("id").isMongoId().withMessage("Invalid user ID"),
     handleValidationErrors,
@@ -211,10 +217,11 @@ router.delete(
 );
 
 // ─── Roles ──────────────────────────────────────────────────────────
-router.get("/roles", verifyToken, getAllRoles);
+router.get("/roles", verifyToken, requirePermission("roles.view"), getAllRoles);
 router.get(
   "/roles/:id",
   verifyToken,
+  requirePermission("roles.view"),
   [
     param("id").isMongoId().withMessage("Invalid role ID"),
     handleValidationErrors,
@@ -264,7 +271,7 @@ router.delete(
 router.get(
   "/audit-logs",
   verifyToken,
-  requireAdmin,
+  requirePermission("audit.view"),
   [
     query("limit").optional().isInt({ min: 1, max: 1000 }),
     handleValidationErrors,
@@ -275,7 +282,7 @@ router.get(
 router.get(
   "/audit-logs/export",
   verifyToken,
-  requireAdmin,
+  requirePermission("audit.export"),
   [query("format").optional().isIn(["csv", "json"]), handleValidationErrors],
   exportAuditLogs,
 );
