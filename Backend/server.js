@@ -30,32 +30,14 @@ const app = express();
 app.use(helmet());
 app.use(statsTracker);
 
+app.set("trust proxy", 1); // Trust first proxy (needed for rate limiting behind a reverse proxy)
+
 // ─── CORS Configuration ───────────────────────────────────
+const frontendOrigin = (process.env.FRONTEND_URL || config.CLIENT_URL).replace(/\/$/, "");
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      const allowed = [
-        config.CLIENT_URL,
-        "http://localhost:5173",
-        "http://localhost:5174",
-      ];
-
-      if (allowed.includes(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
-        return callback(null, true);
-      }
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-
+    origin: frontendOrigin,
     credentials: true,
-
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   }),
 );
 
