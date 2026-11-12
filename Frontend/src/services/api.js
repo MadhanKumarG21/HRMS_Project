@@ -83,8 +83,14 @@ const fetchClient = async (endpoint, options = {}) => {
       try {
         data = JSON.parse(text);
       } catch (parseError) {
-        console.error("[API] Invalid JSON:", text);
-        throw new Error("Invalid response from server.", { cause: parseError });
+        const message = response.ok
+          ? "Invalid response from server."
+          : response.status === 502
+            ? "Server temporarily unavailable (502). Please try again later."
+            : `Request failed (${response.status}) with an invalid response.`;
+        const apiError = new Error(message, { cause: parseError });
+        apiError.status = response.status;
+        throw apiError;
       }
     }
 
