@@ -188,7 +188,7 @@ export function ListSkeleton({ count = 5 }) {
 
 export function DashboardSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading dashboard">
       <PageHeaderSkeleton hasButton={false} />
       <StatsSkeleton count={4} />
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 20 }}>
@@ -213,9 +213,27 @@ export function DashboardSkeleton() {
   );
 }
 
+export function EmployeeDashboardSkeleton() {
+  return (
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading dashboard">
+      <PageHeaderSkeleton hasButton={false} />
+      <StatsSkeleton count={3} />
+      <div className="skeleton-card">
+        <Skeleton width="160px" height="22px" />
+        <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+          <Skeleton width="120px" height="40px" borderRadius="8px" />
+          <Skeleton width="120px" height="40px" borderRadius="8px" />
+        </div>
+      </div>
+      <TableSkeleton rows={5} columns={4} />
+      <TableSkeleton rows={5} columns={5} />
+    </div>
+  );
+}
+
 export function EmployeesSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading employees">
       <PageHeaderSkeleton buttonWidth={150} />
       <StatsSkeleton count={5} />
       <FilterBarSkeleton filterCount={3} />
@@ -226,7 +244,7 @@ export function EmployeesSkeleton() {
 
 export function AttendanceSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading attendance">
       <PageHeaderSkeleton buttonWidth={140} />
       <div className="skeleton-card" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -247,7 +265,7 @@ export function AttendanceSkeleton() {
 
 export function LeaveSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading leave management">
       <PageHeaderSkeleton buttonWidth={150} />
       <StatsSkeleton count={4} />
       <FilterBarSkeleton filterCount={2} />
@@ -258,7 +276,7 @@ export function LeaveSkeleton() {
 
 export function AuditLogSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading audit log">
       <PageHeaderSkeleton buttonWidth={120} />
       <StatsSkeleton count={4} />
       <FilterBarSkeleton filterCount={3} />
@@ -269,7 +287,7 @@ export function AuditLogSkeleton() {
 
 export function RolesSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading roles">
       <PageHeaderSkeleton buttonWidth={140} />
       <CardsGridSkeleton count={4} />
     </div>
@@ -278,7 +296,7 @@ export function RolesSkeleton() {
 
 export function ModulesSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading modules">
       <PageHeaderSkeleton buttonWidth={150} />
       <StatsSkeleton count={3} />
       <FilterBarSkeleton filterCount={2} />
@@ -289,7 +307,7 @@ export function ModulesSkeleton() {
 
 export function RecruitmentSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading recruitment">
       <PageHeaderSkeleton buttonWidth={160} />
       <StatsSkeleton count={4} />
       <FilterBarSkeleton filterCount={2} />
@@ -301,7 +319,7 @@ export function RecruitmentSkeleton() {
 
 export function ReportsSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading reports">
       <PageHeaderSkeleton buttonWidth={130} />
       <FilterBarSkeleton filterCount={3} />
       <div className="skeleton-card" style={{ height: 320, padding: 24 }}>
@@ -315,7 +333,7 @@ export function ReportsSkeleton() {
 
 export function SettingsSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading settings">
       <PageHeaderSkeleton buttonWidth={120} />
       <FormSkeleton sections={3} />
     </div>
@@ -324,7 +342,7 @@ export function SettingsSkeleton() {
 
 export function NotificationSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading notifications">
       <PageHeaderSkeleton buttonWidth={140} />
       <div className="skeleton-filter-bar">
         <Skeleton width="90px" height="32px" borderRadius="20px" />
@@ -338,7 +356,7 @@ export function NotificationSkeleton() {
 
 export function ProfileSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading profile">
       <div className="skeleton-card" style={{ padding: 28, display: "flex", gap: 24, alignItems: "center" }}>
         <Skeleton width="88px" height="88px" borderRadius="50%" style={{ flexShrink: 0 }} />
         <div style={{ display: "flex", flexDirection: "column", gap: 10, flex: 1 }}>
@@ -354,7 +372,7 @@ export function ProfileSkeleton() {
 
 export function GenericPageSkeleton() {
   return (
-    <div className="skeleton-page-container">
+    <div className="skeleton-page-container" role="status" aria-busy="true" aria-label="Loading page">
       <PageHeaderSkeleton />
       <StatsSkeleton count={4} />
       <TableSkeleton rows={6} columns={6} />

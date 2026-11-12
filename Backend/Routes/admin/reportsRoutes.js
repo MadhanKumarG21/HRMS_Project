@@ -1,5 +1,5 @@
 // Backend/Routes/admin/reportsRoutes.js
-// Report generation and type listing endpoints. Admin-only access required.
+// Report generation and type listing endpoints.
 import express from 'express';
 import { query } from 'express-validator';
 import {
@@ -26,7 +26,7 @@ router.get(
 router.get(
   '/employee',
   verifyToken,
-  requirePermission('reports.export'),
+  requirePermission('reports.view'),
   [
     query('department').optional().isString(),
     query('status').optional().isString(),
@@ -40,7 +40,7 @@ router.get(
 router.get(
   '/attendance',
   verifyToken,
-  requirePermission('reports.export'),
+  requirePermission('reports.view'),
   [
     query('from').optional().isISO8601().withMessage('Invalid from date'),
     query('to').optional().isISO8601().withMessage('Invalid to date'),
@@ -55,7 +55,7 @@ router.get(
 router.get(
   '/leave',
   verifyToken,
-  requirePermission('reports.export'),
+  requirePermission('reports.view'),
   [
     query('from').optional().isISO8601().withMessage('Invalid from date'),
     query('to').optional().isISO8601().withMessage('Invalid to date'),

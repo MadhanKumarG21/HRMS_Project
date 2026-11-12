@@ -160,15 +160,26 @@ export const generateAttendanceReport = async (req, res) => {
 // ─── Generate Leave Report ─────────────────────────────────────────────────
 export const generateLeaveReport = async (req, res) => {
     try {
-        const { department, status, page = 1, limit = 100 } = req.query;
+        const { department, status, from, to, page = 1, limit = 100 } = req.query;
 
         const userFilter = await getReportUserFilter(req, department);
         const users = await User.find(userFilter).select('_id');
         const userIds = users.map((user) => user._id);
 
+        const dateFilter = {};
+        if (from) {
+            dateFilter.toDate = { $gte: new Date(from) };
+        }
+        if (to) {
+            const toExclusive = new Date(to);
+            toExclusive.setUTCDate(toExclusive.getUTCDate() + 1);
+            dateFilter.fromDate = { $lt: toExclusive };
+        }
+
         const leaveFilter = {
             userId: { $in: userIds },
             ...(status && { status }),
+            ...dateFilter,
         };
 
         const skip = (parseInt(page) - 1) * parseInt(limit);

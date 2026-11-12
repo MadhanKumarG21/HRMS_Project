@@ -1,6 +1,7 @@
 import { useModules } from "./modules/ModulesContext";
 import { useAuth } from "../hooks/useAuth.jsx";
 import Icon from "./Icon.jsx";
+import { GenericPageSkeleton } from "./common/Skeleton.jsx";
 
 function AccessDeniedNotice({ moduleKey, reason }) {
     const moduleName = moduleKey
@@ -25,18 +26,9 @@ function AccessDeniedNotice({ moduleKey, reason }) {
     );
 }
 
-function ModuleLoading() {
-    return (
-        <div className="module-loading">
-            <div className="spinner" />
-            <p>Checking module status...</p>
-        </div>
-    );
-}
-
 /**
  * Wraps a page/component and only renders it when its module status is "active".
- * - "unknown" (modules still loading, or module not found in the list) shows a spinner.
+ * - "unknown" (modules still loading, or module not found in the list) shows a skeleton.
  * - "suspended" renders a maintenance notice instead of the real component.
  *
  * Usage: <ModuleGate moduleKey="employees"><Employees /></ModuleGate>
@@ -46,7 +38,7 @@ export default function ModuleGate({ moduleKey, permission, adminOnly = false, c
     const { hasPermission, isAdmin } = useAuth();
     const status = getModuleStatus(moduleKey);
 
-    if (status === "unknown") return <ModuleLoading />;
+    if (status === "unknown") return <GenericPageSkeleton />;
     if (status === "suspended") return <AccessDeniedNotice moduleKey={moduleKey} />;
     const permissions = Array.isArray(permission) ? permission : [permission];
     if (adminOnly && !isAdmin) {

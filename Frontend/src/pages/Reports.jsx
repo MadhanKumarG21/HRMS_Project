@@ -1,7 +1,9 @@
 // src/pages/Reports.jsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { api } from "../services/api.js";
 import Icon from "../Components/Icon.jsx";
+import { StatsSkeleton, TableSkeleton } from "../Components/common/Skeleton.jsx";
+import { useAuth } from "../hooks/useAuth.jsx";
 import "../styles/Reports.css";
 
 // ─── Helper Functions ─────────────────────────────────────────────────────
@@ -10,19 +12,56 @@ const getDefaultStartDate = () =>
   new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
 const getDefaultEndDate = () => new Date().toISOString().split("T")[0];
+const getDefaultPayrollPeriod = () => new Date().toISOString().slice(0, 7);
+const REPORT_LIMIT = 500;
+
+const FALLBACK_REPORT_TYPES = [
+  {
+    id: "employee",
+    label: "Employee Report",
+    description: "List of all employees with details",
+  },
+  {
+    id: "attendance",
+    label: "Attendance Report",
+    description: "Attendance records for date range",
+  },
+  {
+    id: "leave",
+    label: "Leave Report",
+    description: "Leave requests and status",
+  },
+  {
+    id: "payroll",
+    label: "Payroll Summary",
+    description: "Estimated salaries, allowances, and deductions",
+  },
+];
+
+const getReportColumns = (record = {}) =>
+  Object.keys(record).filter(
+    (key) =>
+      key !== "_id" &&
+      key !== "__v" &&
+      key !== "updatedAt" &&
+      key !== "createdAt",
+  );
 
 // ─── Main Component ──────────────────────────────────────────────────────
 
 export default function Reports() {
+  const { hasPermission } = useAuth();
+  const reportRequestId = useRef(0);
   // ─── State ─────────────────────────────────────────────────────────────
   const [reportType, setReportType] = useState("employee");
   const [startDate, setStartDate] = useState(getDefaultStartDate);
   const [endDate, setEndDate] = useState(getDefaultEndDate);
+  const [payrollPeriod, setPayrollPeriod] = useState(getDefaultPayrollPeriod);
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [exporting, setExporting] = useState(false);
-  const [reportTypes, setReportTypes] = useState([]);
+  const [reportTypes, setReportTypes] = useState(FALLBACK_REPORT_TYPES);
   const [searchTerm, setSearchTerm] = useState("");
 
   // ─── Load Report Types ─────────────────────────────────────────────────
@@ -32,43 +71,11 @@ export default function Reports() {
       try {
         const types = await api.getReportTypes();
         setReportTypes(
-          types || [
-            {
-              id: "employee",
-              label: "Employee Report",
-              description: "List of all employees with details",
-            },
-            {
-              id: "attendance",
-              label: "Attendance Report",
-              description: "Attendance records for date range",
-            },
-            {
-              id: "leave",
-              label: "Leave Report",
-              description: "Leave requests and status",
-            },
-          ],
+          Array.isArray(types) && types.length ? types : FALLBACK_REPORT_TYPES,
         );
       } catch (err) {
         console.error("Failed to load report types:", err);
-        setReportTypes([
-          {
-            id: "employee",
-            label: "Employee Report",
-            description: "List of all employees with details",
-          },
-          {
-            id: "attendance",
-            label: "Attendance Report",
-            description: "Attendance records for date range",
-          },
-          {
-            id: "leave",
-            label: "Leave Report",
-            description: "Leave requests and status",
-          },
-        ]);
+        setReportTypes(FALLBACK_REPORT_TYPES);
       }
     };
     loadReportTypes();
@@ -77,89 +84,106 @@ export default function Reports() {
   // ─── Generate Report ───────────────────────────────────────────────────
 
   const generateReport = useCallback(async () => {
+    const requestId = ++reportRequestId.current;
+    if (
+      (reportType === "attendance" || reportType === "leave") &&
+      startDate > endDate
+    ) {
+      setReportData(null);
+      setError("The start date must be on or before the end date.");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError("");
     setReportData(null);
 
     try {
-      let data = null;
-      let stats = {};
-      let records = [];
-
+      let response;
       switch (reportType) {
         case "employee": {
-          stats = await api.getEmployeeStats().catch(() => ({}));
-          console.log(stats);
-
-          const employees = await api.getEmployees().catch(() => []);
-          console.log("Employees Response:", employees);
-          // Apply search filter
-          const filteredEmployees = searchTerm
-            ? employees.filter(
-                (emp) =>
-                  emp?.userId?.name
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
-                  emp?.employeeId
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase()) ||
-                  emp?.department
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase()),
-              )
-            : employees;
-          records = filteredEmployees;
-          data = { stats, records, type: "employee" };
+          response = await api.getEmployeeReport({
+            page: 1,
+            limit: REPORT_LIMIT,
+          });
           break;
         }
 
         case "attendance": {
-          stats = await api.getAttendanceStats().catch(() => ({}));
-          const attendance = await api
-            .getAttendance({ from: startDate, to: endDate })
-            .catch(() => []);
-          records = attendance;
-          data = { stats, records, type: "attendance" };
+          response = await api.getAttendanceReport({
+            from: startDate,
+            to: endDate,
+            page: 1,
+            limit: REPORT_LIMIT,
+          });
           break;
         }
 
         case "leave": {
-          stats = await api.getLeaveStats().catch(() => ({}));
-          const leaves = await api
-            .getLeaves({ from: startDate, to: endDate })
-            .catch(() => []);
-          records = leaves;
-          data = { stats, records, type: "leave" };
+          response = await api.getLeaveReport({
+            from: startDate,
+            to: endDate,
+            page: 1,
+            limit: REPORT_LIMIT,
+          });
+          break;
+        }
+
+        case "payroll": {
+          const [year, month] = payrollPeriod.split("-");
+          response = await api.getPayrollReport({ month, year });
           break;
         }
 
         default:
-          data = null;
+          throw new Error("Please select a supported report type.");
       }
 
-      if (data) {
-        setReportData(data);
-      } else {
-        setError("No data available for this report type");
+      if (!response || !Array.isArray(response.data)) {
+        throw new Error("The server returned an invalid report.");
+      }
+
+      if (requestId === reportRequestId.current) {
+        setReportData({
+          type: reportType,
+          stats: response.summary || {},
+          records: response.data,
+          note: response.note || "",
+          pagination: response.pagination || null,
+        });
       }
     } catch (err) {
       console.error("Report generation error:", err);
-      setError(err.message || "Failed to generate report");
+      if (requestId === reportRequestId.current) {
+        setError(err.message || "Failed to generate report");
+      }
     } finally {
-      setLoading(false);
+      if (requestId === reportRequestId.current) {
+        setLoading(false);
+      }
     }
-  }, [reportType, startDate, endDate, searchTerm]);
+  }, [reportType, startDate, endDate, payrollPeriod]);
 
   // ─── Auto-generate on type change ─────────────────────────────────────
 
   useEffect(() => {
     generateReport();
-  }, [reportType, generateReport]);
+  }, [generateReport]);
 
   // ─── Export CSV ────────────────────────────────────────────────────────
 
+  const filteredRecords = (reportData?.records || []).filter(
+    (record) =>
+      !searchTerm.trim() ||
+      JSON.stringify(record)
+        .toLowerCase()
+        .includes(searchTerm.trim().toLowerCase()),
+  );
+  const reportColumns = getReportColumns(filteredRecords[0]);
+
   const exportCSV = async () => {
-    if (!reportData || !reportData.records || reportData.records.length === 0) {
+    if (filteredRecords.length === 0) {
       setError("No data to export");
       setTimeout(() => setError(""), 3000);
       return;
@@ -169,38 +193,17 @@ export default function Reports() {
     setError("");
 
     try {
-      const records = reportData.records;
-
-      const headers = Object.keys(records[0] || {}).filter(
-        (k) =>
-          k !== "_id" && k !== "__v" && k !== "updatedAt" && k !== "createdAt",
-      );
-
-      let csv = headers.join(",") + "\n";
-
-      records.forEach((record) => {
-        const row = headers.map((header) => {
-          let value = record[header];
-          if (value === null || value === undefined) return "";
-          if (typeof value === "object" && value !== null) {
-            if (value.name) return `"${value.name}"`;
-            if (value.email) return `"${value.email}"`;
-            if (value._id) return `"${value._id}"`;
-            return `"${JSON.stringify(value).replace(/"/g, '""')}"`;
-          }
-          const stringValue = String(value);
-          if (
-            stringValue.includes(",") ||
-            stringValue.includes('"') ||
-            stringValue.includes("\n")
-          ) {
-            return `"${stringValue.replace(/"/g, '""')}"`;
-          }
-          return stringValue;
-        });
-        csv += row.join(",") + "\n";
-      });
-
+      const headers = reportColumns;
+      const escapeCSV = (value) =>
+        `"${String(value ?? "").replace(/"/g, '""')}"`;
+      const csv = [
+        headers.map(formatHeader).map(escapeCSV).join(","),
+        ...filteredRecords.map((record) =>
+          headers
+            .map((header) => escapeCSV(formatValue(record[header])))
+            .join(","),
+        ),
+      ].join("\r\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -209,7 +212,7 @@ export default function Reports() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
     } catch (err) {
       console.error("Export error:", err);
       setError("Failed to export CSV: " + err.message);
@@ -265,7 +268,7 @@ export default function Reports() {
     if (typeof value === "object" && value !== null) {
       if (value.name) return value.name;
       if (value.email) return value.email;
-      if (value._id) return value._id.substring(0, 8);
+      if (value._id) return String(value._id).substring(0, 8);
       return JSON.stringify(value);
     }
     if (typeof value === "string" && value.match(/^\d{4}-\d{2}-\d{2}T/)) {
@@ -333,17 +336,10 @@ export default function Reports() {
     setSearchTerm(e.target.value);
   };
 
-  const handleSearchKeyDown = (e) => {
-    if (e.key === "Enter") {
-      generateReport();
-    }
-  };
-
   // ─── Clear Search ──────────────────────────────────────────────────────
 
   const clearSearch = () => {
     setSearchTerm("");
-    generateReport();
   };
 
   // ─── Render ─────────────────────────────────────────────────────────────
@@ -355,9 +351,9 @@ export default function Reports() {
           <h1>Reports</h1>
           <p className="page-subtitle">
             Generate and export reports
-            {reportData && reportData.records && (
+            {reportData && (
               <span className="report-count">
-                {reportData.records.length} records found
+                {filteredRecords.length} records found
               </span>
             )}
           </p>
@@ -366,10 +362,14 @@ export default function Reports() {
           className="btn-primary"
           onClick={exportCSV}
           disabled={
-            !reportData ||
-            !reportData.records ||
-            reportData.records.length === 0 ||
+            !hasPermission("reports.export") ||
+            filteredRecords.length === 0 ||
             exporting
+          }
+          title={
+            !hasPermission("reports.export")
+              ? "Export permission required"
+              : undefined
           }
         >
           <Icon name="download" />
@@ -395,7 +395,6 @@ export default function Reports() {
               placeholder="Search employee, ID, department..."
               value={searchTerm}
               onChange={handleSearchChange}
-              onKeyDown={handleSearchKeyDown}
               className="search-input"
             />
             {searchTerm && (
@@ -412,11 +411,16 @@ export default function Reports() {
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
           >
-            {reportTypes.map((type) => (
+            {reportTypes
+              .filter(
+                (type) =>
+                  type.id !== "payroll" || hasPermission("reports.export"),
+              )
+              .map((type) => (
               <option key={type.id} value={type.id}>
                 {type.label}
               </option>
-            ))}
+              ))}
           </select>
         </div>
 
@@ -441,6 +445,18 @@ export default function Reports() {
           </>
         )}
 
+        {reportType === "payroll" && (
+          <div className="filter-group">
+            <label htmlFor="payroll-period">Payroll month</label>
+            <input
+              id="payroll-period"
+              type="month"
+              value={payrollPeriod}
+              onChange={(e) => setPayrollPeriod(e.target.value)}
+            />
+          </div>
+        )}
+
         <button
           className="btn-secondary"
           onClick={generateReport}
@@ -461,17 +477,34 @@ export default function Reports() {
       {/* ─── Report Preview ────────────────────────────────────────── */}
       <div className="report-preview">
         {loading ? (
-          <div className="loading-state">
-            <div className="spinner" />
-            <p>Generating report...</p>
+          <div
+            className="report-loading-skeleton"
+            role="status"
+            aria-busy="true"
+            aria-label="Generating report"
+          >
+            <StatsSkeleton count={4} />
+            <TableSkeleton rows={6} columns={6} />
           </div>
         ) : reportData ? (
           <div className="report-content">
+            {reportData.note && (
+              <p className="report-note" role="note">
+                {reportData.note}
+              </p>
+            )}
+            {reportData.pagination?.total > reportData.records.length && (
+              <p className="report-note" role="note">
+                Showing the first {reportData.records.length} of{" "}
+                {reportData.pagination.total} records. CSV export includes the
+                loaded records.
+              </p>
+            )}
             {/* Stats Summary */}
             {reportData.stats && Object.keys(reportData.stats).length > 0 && (
               <div className="report-stats">
                 {Object.entries(reportData.stats)
-                  .filter(([key]) => !key.includes("by"))
+                  .filter(([, value]) => typeof value === "number")
                   .map(([key, value]) => (
                     <div
                       className={`report-stat ${getStatColor(key, value)}`}
@@ -485,64 +518,40 @@ export default function Reports() {
             )}
 
             {/* Table */}
-            {reportData.records && reportData.records.length > 0 ? (
+            {filteredRecords.length > 0 ? (
               <div className="report-table-wrapper">
                 <div className="table-header">
                   <span className="table-title">
-                    {reportData.records.length} Records
+                    {filteredRecords.length} Records
                   </span>
                   <span className="table-info">
-                    Showing {Math.min(20, reportData.records.length)} of{" "}
-                    {reportData.records.length}
+                    Showing {Math.min(20, filteredRecords.length)} of{" "}
+                    {filteredRecords.length}
                   </span>
                 </div>
                 <table className="report-table">
                   <thead>
                     <tr>
-                      {Object.keys(reportData.records[0])
-                        .filter(
-                          (k) =>
-                            k !== "_id" &&
-                            k !== "__v" &&
-                            k !== "updatedAt" &&
-                            k !== "createdAt",
-                        )
-                        .map((key) => (
-                          <th key={key}>{formatHeader(key)}</th>
-                        ))}
+                      {reportColumns.map((key) => (
+                        <th key={key}>{formatHeader(key)}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {reportData.records.slice(0, 20).map((record, i) => (
+                    {filteredRecords.slice(0, 20).map((record, i) => (
                       <tr key={i}>
-                        {Object.entries(record)
-                          .filter(
-                            ([k]) =>
-                              k !== "_id" &&
-                              k !== "__v" &&
-                              k !== "updatedAt" &&
-                              k !== "createdAt",
-                          )
-                          .map(([key, value]) => (
-                            <td key={key}>{formatValue(value)}</td>
-                          ))}
+                        {reportColumns.map((key) => (
+                          <td key={key}>{formatValue(record[key])}</td>
+                        ))}
                       </tr>
                     ))}
-                    {reportData.records.length > 20 && (
+                    {filteredRecords.length > 20 && (
                       <tr>
                         <td
-                          colSpan={
-                            Object.keys(reportData.records[0]).filter(
-                              (k) =>
-                                k !== "_id" &&
-                                k !== "__v" &&
-                                k !== "updatedAt" &&
-                                k !== "createdAt",
-                            ).length
-                          }
+                          colSpan={reportColumns.length}
                           className="text-center text-muted"
                         >
-                          Showing first 20 of {reportData.records.length}{" "}
+                          Showing first 20 of {filteredRecords.length}{" "}
                           records
                         </td>
                       </tr>

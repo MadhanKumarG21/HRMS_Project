@@ -5,6 +5,21 @@ import { ModulesProvider } from "./Components/modules/ModulesContext.jsx";
 import ModuleGate from "./Components/ModuleGate.jsx";
 import Sidebar from "./Components/Sidebar.jsx";
 import Topbar from "./Components/Topbar.jsx";
+import {
+  AuditLogSkeleton,
+  AttendanceSkeleton,
+  DashboardSkeleton,
+  EmployeeDashboardSkeleton,
+  EmployeesSkeleton,
+  GenericPageSkeleton,
+  LeaveSkeleton,
+  ModulesSkeleton,
+  NotificationSkeleton,
+  RecruitmentSkeleton,
+  ReportsSkeleton,
+  RolesSkeleton,
+  SettingsSkeleton,
+} from "./Components/common/Skeleton.jsx";
 import "./styles/layout.css";
 
 // ─── Lazy-loaded page components ──────────────────────────────────
@@ -38,8 +53,15 @@ function LoadingScreen() {
 
 function RoleDashboard() {
   const { isAdmin, roleName } = useAuth();
-  if (isAdmin) return <Dashboard />;
-  return <EmployeeDashboard roleName={roleName} />;
+  return (
+    <Suspense
+      fallback={
+        isAdmin ? <DashboardSkeleton /> : <EmployeeDashboardSkeleton />
+      }
+    >
+      {isAdmin ? <Dashboard /> : <EmployeeDashboard roleName={roleName} />}
+    </Suspense>
+  );
 }
 
 function ProtectedRoute({ children }) {
@@ -57,8 +79,6 @@ function GuestRoute({ children }) {
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
   return children;
 }
-
-import { GenericPageSkeleton } from "./Components/common/Skeleton.jsx";
 
 // App Shell Layout — wraps the sidebar, topbar, and outlet for authenticated pages.
 function AppShell() {
@@ -98,7 +118,9 @@ export default function App() {
               path="/login"
               element={
                 <GuestRoute>
-                  <Login />
+                  <Suspense fallback={<GenericPageSkeleton />}>
+                    <Login />
+                  </Suspense>
                 </GuestRoute>
               }
             />
@@ -128,86 +150,113 @@ export default function App() {
               <Route
                 path="employees"
                 element={
-                  <ModuleGate moduleKey="employees" permission="employees.view">
-                    <Employees />
-                  </ModuleGate>
+                  <Suspense fallback={<EmployeesSkeleton />}>
+                    <ModuleGate moduleKey="employees" permission="employees.view">
+                      <Employees />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
               <Route
                 path="notification"
                 element={
-                  <ModuleGate moduleKey="notification">
-                    <Notification />
-                  </ModuleGate>
+                  <Suspense fallback={<NotificationSkeleton />}>
+                    <ModuleGate moduleKey="notification">
+                      <Notification />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
               <Route
                 path="notifications"
                 element={
-                  <ModuleGate moduleKey="notification">
-                    <Notification />
-                  </ModuleGate>
+                  <Suspense fallback={<NotificationSkeleton />}>
+                    <ModuleGate moduleKey="notification">
+                      <Notification />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
             
               <Route
                 path="leave"
                 element={
-                  <ModuleGate moduleKey="leave_management" permission="leave.view">
-                    <LeaveManagement />
-                  </ModuleGate>
+                  <Suspense fallback={<LeaveSkeleton />}>
+                    <ModuleGate moduleKey="leave_management" permission="leave.view">
+                      <LeaveManagement />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
               <Route
                 path="attendance"
                 element={
-                  <ModuleGate moduleKey="attendance" permission="attendance.view">
-                    <Attendance />
-                  </ModuleGate>
+                  <Suspense fallback={<AttendanceSkeleton />}>
+                    <ModuleGate moduleKey="attendance" permission="attendance.view">
+                      <Attendance />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
               <Route
                 path="roles"
                 element={
-                  <ModuleGate moduleKey="roles" adminOnly>
-                    <Rolespermissions />
-                  </ModuleGate>
+                  <Suspense fallback={<RolesSkeleton />}>
+                    <ModuleGate moduleKey="roles" adminOnly>
+                      <Rolespermissions />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
               <Route
                 path="audit"
                 element={
-                  <ModuleGate moduleKey="audit" permission="audit.view">
-                    <AuditLog />
-                  </ModuleGate>
+                  <Suspense fallback={<AuditLogSkeleton />}>
+                    <ModuleGate moduleKey="audit" permission="audit.view">
+                      <AuditLog />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
 
               {/* Modules page manages module status itself, so it is not gated */}
-              <Route path="modules" element={<ModuleGate adminOnly><Modules /></ModuleGate>} />
+              <Route
+                path="modules"
+                element={
+                  <Suspense fallback={<ModulesSkeleton />}>
+                    <ModuleGate adminOnly><Modules /></ModuleGate>
+                  </Suspense>
+                }
+              />
 
               <Route
                 path="recruitment"
                 element={
-                  <ModuleGate moduleKey="recruitment" permission="recruitment.manage">
-                    <Recruitment />
-                  </ModuleGate>
+                  <Suspense fallback={<RecruitmentSkeleton />}>
+                    <ModuleGate moduleKey="recruitment" permission="recruitment.manage">
+                      <Recruitment />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
               <Route
                 path="reports"
                 element={
-                  <ModuleGate moduleKey="reports" permission="reports.view">
-                    <Reports />
-                  </ModuleGate>
+                  <Suspense fallback={<ReportsSkeleton />}>
+                    <ModuleGate moduleKey="reports" permission="reports.view">
+                      <Reports />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
               <Route
                 path="settings"
                 element={
-                  <ModuleGate moduleKey="settings" adminOnly>
-                    <Settings />
-                  </ModuleGate>
+                  <Suspense fallback={<SettingsSkeleton />}>
+                    <ModuleGate moduleKey="settings" adminOnly>
+                      <Settings />
+                    </ModuleGate>
+                  </Suspense>
                 }
               />
 
