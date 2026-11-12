@@ -93,18 +93,22 @@ export function ModulesProvider({ children }) {
 
     const getModuleStatus = useCallback(
         (moduleKey) => {
+            if (!moduleKey || !String(moduleKey).trim()) {
+                return "active";
+            }
+
             if (loading) {
                 return "unknown";
             }
 
-            const key = moduleKey?.toLowerCase() || "";
+            const key = String(moduleKey).toLowerCase();
             const mod =
                 moduleMap[key] ||
                 (key === "notification" ? moduleMap["notifications"] : undefined) ||
                 (key === "notifications" ? moduleMap["notification"] : undefined);
 
             if (!mod) {
-                return "active";
+                return "unknown";
             }
 
             return normalizeStatus(mod);

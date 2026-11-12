@@ -1,14 +1,27 @@
 import { useModules } from "./modules/ModulesContext";
 import { useAuth } from "../hooks/useAuth.jsx";
+import Icon from "./Icon.jsx";
 
 function AccessDeniedNotice({ moduleKey, reason }) {
+    const moduleName = moduleKey
+        ?.replace(/[_-]+/g, " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
     return (
-        <div className="module-suspended">
-            <h2>{reason ? "Access Restricted" : "Module Unavailable"}</h2>
-            <p>
-                {reason || `The "${moduleKey}" module is currently suspended. Contact your administrator if you believe this is a mistake.`}
-            </p>
-        </div>
+        <section
+            className={`module-gate-notice${reason ? " module-access-notice" : " module-maintenance-notice"}`}
+            role="status"
+        >
+            <span className="module-gate-notice-icon" aria-hidden="true">
+                <Icon name={reason ? "lock" : "warning"} />
+            </span>
+            <div>
+                <h2>{reason ? "Access Restricted" : "Module Under Maintenance"}</h2>
+                <p>
+                    {reason || `${moduleName} is currently under maintenance. Please try again later.`}
+                </p>
+            </div>
+        </section>
     );
 }
 
@@ -24,7 +37,7 @@ function ModuleLoading() {
 /**
  * Wraps a page/component and only renders it when its module status is "active".
  * - "unknown" (modules still loading, or module not found in the list) shows a spinner.
- * - "suspended" renders a blocked placeholder instead of the real component.
+ * - "suspended" renders a maintenance notice instead of the real component.
  *
  * Usage: <ModuleGate moduleKey="employees"><Employees /></ModuleGate>
  */

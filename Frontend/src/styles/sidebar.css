@@ -11,21 +11,21 @@
 :root {
   --sidebar-width: 260px;
   --sidebar-bg: #ffffff;
-  --sidebar-border: #e2e8f0;
+  --sidebar-border: #e2e2ef;
 
-  --primary: #0058be;
-  --primary-light: #2170e4;
-  --primary-dark: #004395;
+  --primary: #6254e8;
+  --primary-light: #8578f4;
+  --primary-dark: #493bc4;
 
-  --sidebar-text: #475569;
-  --sidebar-muted: #64748b;
-  --sidebar-heading: #94a3b8;
+  --sidebar-text: #51536d;
+  --sidebar-muted: #73758d;
+  --sidebar-heading: #9495ad;
 
-  --sidebar-hover: #f1f5f9;
-  --sidebar-active-bg: #eff6ff;
+  --sidebar-hover: #f3f1ff;
+  --sidebar-active-bg: #eeecff;
 
-  --success: #16a34a;
-  --danger: #dc2626;
+  --success: #14866d;
+  --danger: #d94f68;
 
   --topbar-height: 64px;
 
@@ -82,6 +82,8 @@
   flex-shrink: 0;
 
   position: relative;
+
+  background: linear-gradient(135deg, rgba(98, 84, 232, 0.07), rgba(7, 143, 140, 0.04));
 }
 
 
@@ -1099,16 +1101,19 @@
 
 [data-theme="dark"] {
 
-  --sidebar-bg: #0f172a;
-  --sidebar-border: #1e293b;
+  --sidebar-bg: #1d1e35;
+  --sidebar-border: #393a57;
+  --primary: #a69cff;
+  --primary-light: #c2baff;
+  --primary-dark: #887cf3;
 
-  --sidebar-text: #cbd5e1;
-  --sidebar-muted: #94a3b8;
+  --sidebar-text: #d0cfe6;
+  --sidebar-muted: #a4a2c2;
 
-  --sidebar-heading: #64748b;
+  --sidebar-heading: #8584a5;
 
-  --sidebar-hover: #1e293b;
-  --sidebar-active-bg: rgba(59, 130, 246, 0.14);
+  --sidebar-hover: #292a47;
+  --sidebar-active-bg: rgba(166, 156, 255, 0.16);
 }
 
 
@@ -1121,11 +1126,12 @@
 
 [data-theme="dark"] .sidebar-brand {
   border-color: var(--sidebar-border);
+  background: linear-gradient(135deg, rgba(166, 156, 255, 0.12), rgba(80, 196, 186, 0.08));
 }
 
 
 [data-theme="dark"] .sidebar-brand-content strong {
-  color: #f8fafc;
+  color: #f3f1ff;
 }
 
 
@@ -1140,16 +1146,16 @@
 
 
 [data-theme="dark"] .nav-item:hover {
-  background: #1e293b;
+  background: #292a47;
 
-  color: #60a5fa;
+  color: #c2baff;
 }
 
 
 [data-theme="dark"] .nav-item.active {
-  background: rgba(59, 130, 246, 0.14);
+  background: rgba(166, 156, 255, 0.16);
 
-  color: #60a5fa;
+  color: #c2baff;
 }
 
 

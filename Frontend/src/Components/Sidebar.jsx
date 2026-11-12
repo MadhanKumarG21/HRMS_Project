@@ -1,26 +1,24 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
-import { useModules } from "./modules/ModulesContext.jsx";
 import Icon from "./Icon.jsx";
 import "../styles/sidebar.css";
 
 const NAV_ITEMS = [
-  { to: "/dashboard", icon: "dashboard", label: "Dashboard", moduleKey: "dashboard" },
-  { to: "/employees", icon: "groups", label: "Employees", moduleKey: "employees" },
-  { to: "/leave", icon: "event_repeat", label: "Leave Management", moduleKey: "leave_management" },
-  { to: "/attendance", icon: "online_prediction", label: "Attendance", moduleKey: "attendance" },
-  { to: "/notifications", icon: "notifications", label: "Notifications", moduleKey: "notification" },
-  { to: "/roles", icon: "lock_open", label: "Roles & Permissions", moduleKey: "roles" },
-  { to: "/audit", icon: "assignment", label: "Audit Logs", moduleKey: "audit" },
+  { to: "/dashboard", icon: "dashboard", label: "Dashboard" },
+  { to: "/employees", icon: "groups", label: "Employees" },
+  { to: "/leave", icon: "event_repeat", label: "Leave Management" },
+  { to: "/attendance", icon: "online_prediction", label: "Attendance" },
+  { to: "/notifications", icon: "notifications", label: "Notifications" },
+  { to: "/roles", icon: "lock_open", label: "Roles & Permissions" },
+  { to: "/audit", icon: "assignment", label: "Audit Logs" },
   { to: "/modules", icon: "extension", label: "Modules" },
-  { to: "/reports", icon: "bar_chart", label: "Reports", moduleKey: "reports" },
-  { to: "/recruitment", icon: "person_add", label: "Recruitment", moduleKey: "recruitment" },
-  { to: "/settings", icon: "settings", label: "Settings", moduleKey: "settings" },
+  { to: "/reports", icon: "bar_chart", label: "Reports" },
+  { to: "/recruitment", icon: "person_add", label: "Recruitment" },
+  { to: "/settings", icon: "settings", label: "Settings" },
 ];
 
 export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }) {
   const { logout, hasPermission, isAdmin, roleName } = useAuth();
-  const { isModuleActive } = useModules();
   const navigate = useNavigate();
 
   const permissionForPath = {
@@ -35,10 +33,6 @@ export default function Sidebar({ mobileOpen = false, onMobileClose = () => {} }
     "/modules": "admin",
   };
   const visibleNavItems = NAV_ITEMS.filter((item) => {
-    if (item.moduleKey && !isModuleActive(item.moduleKey)) return false;
-    if (item.to === "/dashboard") {
-      return isModuleActive("dashboard");
-    }
     const permission = permissionForPath[item.to];
     if (permission === "admin") return isAdmin;
     if (permission) return hasPermission(permission);

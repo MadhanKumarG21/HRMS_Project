@@ -57,6 +57,59 @@
     background: var(--primary-dark);
 }
 
+/* ─── Module Gate States ────────────────────────────────────────────────── */
+
+.module-gate-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    max-width: 720px;
+    margin: clamp(24px, 8vh, 80px) auto;
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-xl);
+    background: linear-gradient(135deg, var(--surface), var(--surface-container-low));
+    box-shadow: var(--shadow);
+}
+
+.module-gate-notice-icon {
+    display: grid;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border-radius: 14px;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.module-gate-notice h2 {
+    margin: 0 0 6px;
+    color: var(--text-primary);
+    font-size: var(--font-large);
+}
+
+.module-gate-notice p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--font-small);
+}
+
+.module-maintenance-notice {
+    border-color: var(--warning);
+    background: linear-gradient(120deg, var(--warning-light), var(--surface) 80%);
+}
+
+.module-maintenance-notice .module-gate-notice-icon {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+.module-access-notice .module-gate-notice-icon {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
 /* ─── Loading Screen ────────────────────────────────────────────────────── */
 
 .loading-screen {
@@ -78,6 +131,7 @@
   display: flex;
   min-height: 100vh;
   background: var(--bg-body);
+  background-image: radial-gradient(ellipse at 100% 0%, var(--brand-glow), transparent 34%);
 }
 
 .main {

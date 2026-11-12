@@ -7,24 +7,24 @@
 :root {
   --topbar-height: 64px;
 
-  --primary: #0058be;
-  --primary-light: #2170e4;
-  --primary-dark: #004395;
+  --primary: #6254e8;
+  --primary-light: #8578f4;
+  --primary-dark: #493bc4;
 
   --topbar-bg: #ffffff;
-  --topbar-border: #e2e8f0;
+  --topbar-border: #e2e2ef;
 
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  --text-primary: #22243d;
+  --text-secondary: #51536d;
+  --text-muted: #73758d;
 
-  --hover-bg: #f8fafc;
-  --active-bg: #eff6ff;
+  --hover-bg: #f3f1ff;
+  --active-bg: #eeecff;
 
-  --success: #16a34a;
-  --warning: #d97706;
-  --danger: #dc2626;
-  --info: #3b82f6;
+  --success: #14866d;
+  --warning: #c77b16;
+  --danger: #d94f68;
+  --info: #367fd1;
 
   --dropdown-shadow: 0 15px 40px rgba(15, 23, 42, 0.12);
 
@@ -58,6 +58,18 @@
   box-sizing: border-box;
 
   z-index: var(--topbar-z);
+}
+
+.topbar::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--brand-gradient);
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 /* ================================================================
@@ -1687,59 +1699,63 @@
    ================================================================ */
 
 [data-theme="dark"] {
-  --topbar-bg: #0f172a;
-  --topbar-border: #1e293b;
+  --topbar-bg: #1d1e35;
+  --topbar-border: #393a57;
+  --primary: #a69cff;
+  --primary-light: #c2baff;
+  --primary-dark: #887cf3;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #f3f1ff;
+  --text-secondary: #b4b2d0;
+  --text-muted: #9492b3;
 
-  --hover-bg: #1e293b;
+  --hover-bg: #292a47;
+  --active-bg: rgba(166, 156, 255, 0.16);
 }
 
 [data-theme="dark"] .topbar {
-  background: #0f172a;
+  background: #1d1e35;
 
-  border-color: #1e293b;
+  border-color: #393a57;
 }
 
 [data-theme="dark"] .breadcrumb-current {
-  color: #f8fafc;
+  color: #f3f1ff;
 }
 
 [data-theme="dark"] .search-input {
-  background: #111c2e;
+  background: #121326;
 
-  border-color: #334155;
+  border-color: #393a57;
 
-  color: #f8fafc;
+  color: #f3f1ff;
 }
 
 [data-theme="dark"] .search-input:hover,
 [data-theme="dark"] .search-input:focus {
-  background: #0f172a;
+  background: #1d1e35;
 
-  border-color: #3b82f6;
+  border-color: #a69cff;
 }
 
 [data-theme="dark"] .search-input::placeholder {
-  color: #64748b;
+  color: #9492b3;
 }
 
 [data-theme="dark"] .search-shortcut-hint {
-  background: #1e293b;
+  background: #25263e;
 
-  border-color: #334155;
+  border-color: #393a57;
 
-  color: #64748b;
+  color: #9492b3;
 }
 
 [data-theme="dark"] .search-dropdown,
 [data-theme="dark"] .notification-dropdown,
 [data-theme="dark"] .user-menu-dropdown {
-  background: #0f172a;
+  background: #1d1e35;
 
-  border-color: #334155;
+  border-color: #393a57;
 }
 
 [data-theme="dark"] .search-section {
